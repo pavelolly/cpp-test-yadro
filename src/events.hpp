@@ -1,10 +1,10 @@
+#pragma once
+
 #include <chrono>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <concepts>
-
-namespace events {
 
 struct Body {
     // TODO: this should be external dumper
@@ -109,5 +109,3 @@ private:
     TimeStamp time_;
     std::unique_ptr<Body> body_;
 };
-
-} // namespace events
