@@ -1,4 +1,4 @@
-#include <ctime>
+#include <chrono>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -9,6 +9,7 @@ namespace events {
 struct Body {
     // TODO: this should be external dumper
     virtual void Dump(std::ostream &) const = 0;
+
     virtual ~Body() = default;
 };
 
@@ -65,42 +66,47 @@ public:
     template <> struct BodyTypeFor<Event::Id::IN_CLIENT_START>  { using type = ClientTable; };
     template <> struct BodyTypeFor<Event::Id::IN_CLIENT_WAIT>   { using type = ClientInfo; };
     template <> struct BodyTypeFor<Event::Id::IN_CLIENT_GONE>   { using type = ClientInfo; };
+
     template <> struct BodyTypeFor<Event::Id::OUT_CLIENT_GONE>  { using type = ClientInfo; };
     template <> struct BodyTypeFor<Event::Id::OUT_CLIENT_START> { using type = ClientTable; };
     template <> struct BodyTypeFor<Event::Id::OUT_ERROR>        { using type = Error; };
 
-    template<Event::Id Id>
+    template <Event::Id Id>
     using BodyTypeForId = typename BodyTypeFor<Id>::type;
 
+    using TimeStamp = std::chrono::minutes;
+
     template <Event::Id Id>
-    static Event Create(std::tm tm, BodyTypeForId<Id> body) {
-        return Event(Id, tm, std::make_unique<BodyTypeForId<Id>>(std::move(body)));
+    static Event Create(TimeStamp time, BodyTypeForId<Id> body) {
+        return Event(Id, time, std::make_unique<BodyTypeForId<Id>>(std::move(body)));
     }
 
     Id GetId()        const { return id_; }
-    std::tm GetTime() const { return time_; }
+    TimeStamp GetTime() const { return time_; }
 
-    Body &GetBody()    { return *body_; }
+    Body &GetBody() { return *body_; }
     const Body &GetBody() const { return *body_; }
 
-    template <typename BodyType> requires std::is_base_of<Body&, BodyType&>
+    template <typename BodyType>
+        requires std::is_base_of<Body, BodyType>
     BodyType &GetBody() { return static_cast<BodyType &>(*body_); }
 
-    template <typename BodyType> requires std::is_base_of<Body&, BodyType&>
+    template <typename BodyType>
+        requires std::is_base_of<Body, BodyType>
     const BodyType &GetBody() const { return static_cast<const BodyType &>(*body_); }
 
     bool HasBody() const { return static_cast<bool>(body_); }
 
     void Dump(std::ostream &os) const {
-        os << time_.tm_hour << ":" << time_.tm_min << " " << static_cast<int>(id_) << " ";
+        os << (time_ / 60).count() << ":" << (time_ % 60).count() << " " << static_cast<int>(id_) << " ";
         body_->Dump(os);
     }
 private:
-    Event(Id id, std::tm time, std::unique_ptr<Body> body = nullptr)
+    Event(Id id, TimeStamp time, std::unique_ptr<Body> body = nullptr)
         : id_(id), time_(time), body_(std::move(body)) {}
 
     Id id_;
-    std::tm time_;
+    TimeStamp time_;
     std::unique_ptr<Body> body_;
 };
 
