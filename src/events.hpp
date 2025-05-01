@@ -4,74 +4,104 @@
 #include <string_view>
 #include <concepts>
 
-namespace event {
+namespace events {
 
-enum class EventId {
-    // Input Events
-    IN_CLIENT_CAME = 1,
-    IN_CLIENT_START,
-    IN_CLIENT_WAIT,
-    IN_CLIENT_GONE,
-
-    // Output Events
-    OUT_CLIENT_GONE = 11,
-    OUT_CLIENT_START,
-    OUT_ERROR
+struct Body {
+    // TODO: this should be external dumper
+    virtual void Dump(std::ostream &) const = 0;
+    virtual ~Body() = default;
 };
 
-struct EventBody {
-    virtual ~EventBody() = 0;
-};
-
-struct BodyClientInfo : EventBody {
+struct ClientInfo : Body {
     std::string client_name;
+
+    ClientInfo(std::string client_name)
+        : client_name(std::move(client_name)) {}
+
+    void Dump(std::ostream &os) const override {
+        os << client_name;
+    }
 };
 
-struct BodyClientTable : EventBody {
+struct ClientTable : Body {
     std::string client_name;
     int table_number;
+
+    ClientTable(std::string client_name, int table_number)
+        : client_name(std::move(client_name)), table_number(table_number) {}
+
+    void Dump(std::ostream &os) const override {
+        os << client_name << " " << table_number;
+    }
 };
 
-struct BodyError : EventBody {
+struct Error : Body {
     std::string_view message;
+
+    Error(std::string_view message) : message(message) {}
+
+    void Dump(std::ostream &os) const override {
+        os << message;
+    }
 };
-
-template <EventId Id>
-struct BodyFor { using type = BodyClientInfo; };
-template<> struct BodyFor<EventId::IN_CLIENT_START>  { using type = BodyClientTable; };
-template<> struct BodyFor<EventId::OUT_CLIENT_START> { using type = BodyClientTable; };
-template<> struct BodyFor<EventId::OUT_ERROR>        { using type = BodyError; };
-
-template <EventId Id>
-using BodyForType = typename BodyFor<Id>::type;
 
 class Event {
+public:
+    enum class Id {
+        // Input Events
+        IN_CLIENT_CAME = 1,
+        IN_CLIENT_START,
+        IN_CLIENT_WAIT,
+        IN_CLIENT_GONE,
 
-    template <EventId Id>
-    static Event Create(std::tm time, BodyForType<Id> body) {
-        return Event(Id, time, std::make_unique<BodyForType<Id>>(std::move(body)));
+        // Output Events
+        OUT_CLIENT_GONE = 11,
+        OUT_CLIENT_START,
+        OUT_ERROR
+    };
+
+    template <Event::Id Id> struct BodyTypeFor {};
+    template <> struct BodyTypeFor<Event::Id::IN_CLIENT_CAME>   { using type = ClientInfo; };
+    template <> struct BodyTypeFor<Event::Id::IN_CLIENT_START>  { using type = ClientTable; };
+    template <> struct BodyTypeFor<Event::Id::IN_CLIENT_WAIT>   { using type = ClientInfo; };
+    template <> struct BodyTypeFor<Event::Id::IN_CLIENT_GONE>   { using type = ClientInfo; };
+    template <> struct BodyTypeFor<Event::Id::OUT_CLIENT_GONE>  { using type = ClientInfo; };
+    template <> struct BodyTypeFor<Event::Id::OUT_CLIENT_START> { using type = ClientTable; };
+    template <> struct BodyTypeFor<Event::Id::OUT_ERROR>        { using type = Error; };
+
+    template<Event::Id Id>
+    using BodyTypeForId = typename BodyTypeFor<Id>::type;
+
+    template <Event::Id Id>
+    static Event Create(std::tm tm, BodyTypeForId<Id> body) {
+        return Event(Id, tm, std::make_unique<BodyTypeForId<Id>>(std::move(body)));
     }
 
-    EventId GetId()   const { return id_; }
+    Id GetId()        const { return id_; }
     std::tm GetTime() const { return time_; }
-    EventBody &GetBody()    { return *body_; }
-    const EventBody &GetBody() const { return *body_; }
 
-    template <typename BodyType> requires std::convertible_to<BodyType, EventBody>
+    Body &GetBody()    { return *body_; }
+    const Body &GetBody() const { return *body_; }
+
+    template <typename BodyType> requires std::is_base_of<Body&, BodyType&>
     BodyType &GetBody() { return static_cast<BodyType &>(*body_); }
 
-    template <typename BodyType> requires std::convertible_to<BodyType, EventBody>
+    template <typename BodyType> requires std::is_base_of<Body&, BodyType&>
     const BodyType &GetBody() const { return static_cast<const BodyType &>(*body_); }
 
     bool HasBody() const { return static_cast<bool>(body_); }
-    
+
+    void Dump(std::ostream &os) const {
+        os << time_.tm_hour << ":" << time_.tm_min << " " << static_cast<int>(id_) << " ";
+        body_->Dump(os);
+    }
 private:
-    Event(EventId id, std::tm time, std::unique_ptr<EventBody> body = nullptr)
+    Event(Id id, std::tm time, std::unique_ptr<Body> body = nullptr)
         : id_(id), time_(time), body_(std::move(body)) {}
-    
-    EventId id_;
+
+    Id id_;
     std::tm time_;
-    std::unique_ptr<EventBody> body_;
+    std::unique_ptr<Body> body_;
 };
 
 } // namespace events
