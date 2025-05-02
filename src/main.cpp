@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "events.hpp"
+#include "event.hpp"
 
 int main(int argc, char *argv[]) {
     std::cout << "Hello World\n";
