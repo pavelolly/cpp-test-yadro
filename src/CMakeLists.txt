@@ -4,3 +4,6 @@ add_library(${PROJECT_NAME}-main
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}-main)
+
+enable_warnings(${PROJECT_NAME}-main)
+enable_warnings(${PROJECT_NAME})
