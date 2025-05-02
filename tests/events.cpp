@@ -4,15 +4,15 @@
 #include "event.hpp"
 
 TEST(Events, Creation) {
-    TimeStamp time(12, 34);
-
-    using enum EventId;
-
     auto DumpAndCompare = [](const Event &event, std::string_view str) {
         std::ostringstream ss;
-        Dump(ss, event);
-        ASSERT_EQ(ss.view(), str);
+        ss << event;
+        EXPECT_EQ(ss.view(), str);
     };
+
+    using enum EventId;
+    
+    TimeStamp time(12, 34);
 
     auto ev = Event::Create<IN_CLIENT_CAME>(time, ClientInfo("client1"));
     DumpAndCompare(ev, "12:34 1 client1");
@@ -34,6 +34,8 @@ TEST(Events, Creation) {
 
     ev = Event::Create<OUT_ERROR>(time, Error("message"));
     DumpAndCompare(ev, "12:34 13 message");
+
+    std::cout << "Here to check if standart operator << still works " << 69420 << "\n";
 }
 
 int main(int argc, char** argv) {
