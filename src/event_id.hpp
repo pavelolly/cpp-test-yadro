@@ -15,6 +15,10 @@ enum class EventId {
     OUT_ERROR
 };
 
+bool IsInputEventId(int val);
+bool IsOutputEventId(int val);
+bool IsEventId(int val);
+
 template <EventId Id> struct BodyTypeFor {};
 template <> struct BodyTypeFor<EventId::IN_CLIENT_CAME>   { using type = ClientInfo; };
 template <> struct BodyTypeFor<EventId::IN_CLIENT_START>  { using type = ClientTable; };

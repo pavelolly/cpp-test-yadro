@@ -38,6 +38,8 @@ TEST(Events, Creation) {
     std::cout << "Here to check if standart operator << still works " << 69420 << "\n";
 }
 
+// TODO: TEST(Events, EventIds)
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

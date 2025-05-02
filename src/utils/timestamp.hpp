@@ -3,6 +3,7 @@
 #include <chrono>
 
 struct TimeStamp : private std::chrono::minutes {
+    TimeStamp() = default;
     TimeStamp(int hour, int minutes)
         : std::chrono::minutes(hour * 60 + minutes)
     {}
