@@ -11,7 +11,7 @@ bool IsOutputEventId(int val) {
 }
 
 bool IsEventId(int val) {
-    return IsInputEventId(val) && IsOutputEventId(val);
+    return IsInputEventId(val) || IsOutputEventId(val);
 }
 
 void Dump(std::ostream &os, const Event &event) {
