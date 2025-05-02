@@ -1,7 +1,8 @@
-#include "string.hpp"
-
+#include <cstring>
+#include <cctype>
 #include <algorithm>
 
-bool IsDigit(const std::string src) {
-    return !src.empty() && std::all_of(src.begin(), src.end(), [](char c) { return std::isdigit(c); });
+bool IsDigit(const char *src) {
+    auto length = std::strlen(src);
+    return length != 0 && std::all_of(src, src + length, [](char c) { return std::isdigit(c); });
 }
