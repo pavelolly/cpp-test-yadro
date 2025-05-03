@@ -1,14 +1,12 @@
 
-add_executable(events events.cpp)
-target_link_libraries(events PRIVATE GTest::gtest ${PROJECT_NAME}-main)
-target_include_directories(events PRIVATE "../src")
-enable_warnings(events)
-
-add_executable(string_utils string_utils.cpp)
-target_link_libraries(string_utils PRIVATE GTest::gtest ${PROJECT_NAME}-main)
-target_include_directories(string_utils PRIVATE "../src")
-enable_warnings(events)
-
 include(GoogleTest)
-gtest_discover_tests(events)
-gtest_discover_tests(string_utils)
+
+set(TESTS events string_utils load)
+
+foreach(test ${TESTS})
+    add_executable(${test} ${test}.cpp)
+    target_link_libraries(${test} PRIVATE GTest::gtest ${PROJECT_NAME}-main)
+    target_include_directories(${test} PRIVATE "../src")
+    enable_warnings(${test})
+    gtest_discover_tests(${test})
+endforeach()

@@ -5,8 +5,9 @@
 
 /*
     This file should be included after all necessary
+
     Dump(std::ostream&, <whatever>)
-    Load(std::istream&, <whatever>)
+    
     functions are decalred
 */
 
