@@ -45,11 +45,11 @@ TEST(Load, TimeStamp) {
 #undef ExpectFail
 }
 
-#if 0
-
 TEST(Load, EventBody) {
 
 }
+
+#if 0
 
 TEST(Load, Event) {
 

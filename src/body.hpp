@@ -28,10 +28,10 @@ struct ClientTable : Body {
 };
 
 struct Error : Body {
-    std::string message;
+    std::string_view message;
 
     Error() = default;
-    Error(std::string message)
+    Error(std::string_view message)
         : message(std::move(message))
     {}
 };
@@ -43,4 +43,4 @@ void Dump(std::ostream &os, const ClientTable &src);
 std::istream &Load(std::istream &is, ClientTable &dest);
 
 void Dump(std::ostream &os, const Error &src);
-std::istream &Load(std::istream &is, Error &dest);
+// no need to load error

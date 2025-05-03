@@ -3,11 +3,9 @@
 #include <ctime>
 #include <iostream>
 
-// TODO: require leading zeros
-
 void Dump(std::ostream &os, const TimeStamp &src) {
     std::ios fmt_state(nullptr);
-    fmt_state.copyfmt(os);
+    fmt_state.copyfmt(os); // preserve formatting settings
 
     os << std::setw(2) << std::setfill('0') << src.GetHours()
        << ":"

@@ -11,6 +11,8 @@
     functions are decalred
 */
 
+// TODO: move this to body.hpp as BodySerializer?
+
 class Serializer {
 public:
     Serializer() = default;

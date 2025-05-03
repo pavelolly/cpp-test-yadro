@@ -33,15 +33,3 @@ std::istream &Load(std::istream &is, ClientTable &dest) {
 void Dump(std::ostream &os, const Error &src) {
     os << src.message;
 }
-
-std::istream &Load(std::istream &is, Error &dest) {
-    Error error;
-    is >> error.message;
-
-    if (!is) {
-        return is;
-    }
-
-    dest = std::move(error);
-    return is;
-}
