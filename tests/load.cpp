@@ -4,6 +4,8 @@
 #include "utils/timestamp.cpp"
 #include "utils/stream_operators.hpp"
 
+#include "event.hpp"
+
 TEST(Load, TimeStamp) {
 
 #define LoadAndCompare(src, time) \
@@ -45,6 +47,8 @@ TEST(Load, TimeStamp) {
 #undef ExpectFail
 }
 
+#define I(...) __VA_ARGS__
+
 TEST(Load, EventBody) {
 
 #define LoadAndCompare(src, event) \
@@ -55,13 +59,68 @@ TEST(Load, EventBody) {
         EXPECT_EQ(dest.GetId(),   (event).GetId());   \
         EXPECT_EQ(dest.GetTime(), (event).GetTime()); \
         ASSERT_EQ(dest.HasBody(), (event).HasBody()); \
-        /* polymorphic compare */ \
-        EXPECT_EQ(dest.GetBody(), (event).GetBody()); \
-    while (0)
+        if (dest.HasBody()) {                         \
+            EXPECT_EQ(dest.GetBody(), (event).GetBody()); \
+        } \
+    } while (0)
 
-        
+    auto event = Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(12, 34), ClientInfo("client"));
+    LoadAndCompare("12:34 1 client", event);
+
+    event = Event::Create<EventId::IN_CLIENT_START>(TimeStamp(2, 34), ClientTable("client2", 1));
+    LoadAndCompare("02:34 2 client2 1", event);
+
+    event = Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(2, 4), ClientInfo("cli2ent"));
+    LoadAndCompare("02:04 3 cli2ent", event);
+
+    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), ClientInfo("2clie0nt"));
+    LoadAndCompare("00:00 4 2clie0nt", event);
+
+
+    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), ClientInfo("2clie0nt"));
+    LoadAndCompare("00:00 4 2clie0nt 1", event); // ok: " 1" stays in stream
+
+    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), ClientInfo("2clie0nt"));
+    LoadAndCompare("00:00 4 2clie0nt 2 3", event); // ok: " 2 3" stays in stream
+
+#define ExpectFail(src) \
+    do { \
+        std::istringstream ss(src); \
+        Event dest;                 \
+        ss >> dest ;                \
+        EXPECT_TRUE(ss.fail());     \
+    } while(0)
+
+    // obvious
+    ExpectFail("kalsjhd");
+    ExpectFail("  asd  wq \b");
+    ExpectFail("");
+    ExpectFail(" \n\t");
+
+    // invalid id or id of output event
+    ExpectFail("12:34 5 client");
+    ExpectFail("12:34 11 client");
+    ExpectFail("12:34 13 client");
+    ExpectFail("12:34 234 client");
+
+    // invalid time
+    ExpectFail("1234 1 client");
+    ExpectFail("2:13 1 client");
+    ExpectFail("1:2:-61 1 client");
+
+    // invalid name
+    // ExpectFail("12:34 1 client");
+    // ExpectFail("02:13 1 clie_nt");
+    // ExpectFail("01:02: 1 #clie0nt");
+
+    // invalid body
+    ExpectFail("12:34 1");
+    ExpectFail("02:34 2 client");
+    ExpectFail("02:04 3 ");
+    ExpectFail("02:04 4 ");
+
 #undef LoadAndCompare
-
+#undef ExpectFail
 }
 
 #if 0

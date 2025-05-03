@@ -4,6 +4,8 @@ void Dump(std::ostream &os, const ClientInfo &src) {
     os << src.client_name;
 }
 
+// TODO: handle client_name to be [a-zA-Z0-9]+
+
 std::istream &Load(std::istream &is, ClientInfo &dest) {
     ClientInfo client_info;
     is >> client_info.client_name;

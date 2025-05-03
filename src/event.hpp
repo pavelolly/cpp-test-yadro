@@ -35,6 +35,10 @@ public:
         return time_;
     }
 
+    bool HasBody() const {
+        return static_cast<bool>(body_);
+    }
+
     template <typename BodyType = Body>
         requires std::is_base_of_v<Body, BodyType>
     BodyType &GetBody() {
