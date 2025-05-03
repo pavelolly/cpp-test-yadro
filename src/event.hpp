@@ -13,13 +13,16 @@
 
 class Event;
 
-void Dump(std::ostream &os, const Event &event);
+void Dump(std::ostream &os, const Event &src);
+std::istream &Load(std::istream &os, Event &dest);
 
 // this should be included after all Dump functions declared /* (== *crap*) */
 #include "utils/serializer.hpp"
 
 class Event {
 public:
+    Event() = default;
+
     template <EventId Id>
     static Event Create(TimeStamp time, BodyTypeForId<Id> body) {
         return Event(Id, time, std::make_unique<BodyTypeForId<Id>>(std::move(body)));

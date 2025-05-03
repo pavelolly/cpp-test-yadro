@@ -63,7 +63,7 @@ TEST(StringUtils, SplitMaxSplit) {
 
     auto SplitAndCompare = [&](std::string str, int maxsplit, std::vector<std::string> expected) {
         splitted.clear();
-        Split(str, std::back_inserter(splitted), maxsplit);
+        Split(str, maxsplit, std::back_inserter(splitted));
 
         EXPECT_EQ(splitted, expected);
     };

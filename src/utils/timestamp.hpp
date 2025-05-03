@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-struct TimeStamp : private std::chrono::minutes {
+struct TimeStamp : std::chrono::minutes {
     TimeStamp() = default;
     TimeStamp(int hour, int minutes)
         : std::chrono::minutes(hour * 60 + minutes)
@@ -17,3 +17,4 @@ struct TimeStamp : private std::chrono::minutes {
 };
 
 void Dump(std::ostream &os, const TimeStamp &time);
+std::istream &Load(std::istream &is, TimeStamp &time);

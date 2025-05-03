@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "event.hpp"
+#include "utils/stream_operators.hpp"
 
 TEST(Events, Creation) {
     auto DumpAndCompare = [](const Event &event, std::string_view str) {

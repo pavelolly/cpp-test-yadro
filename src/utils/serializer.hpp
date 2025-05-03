@@ -5,18 +5,24 @@
 
 /*
     This file should be included after all necessary
-    Dump(std::ostream&, <whatever>) functions are decalred
+    Dump(std::ostream&, <whatever>)
+    Load(std::istream&, <whatever>)
+    functions are decalred
 */
 
 class Serializer {
 public:
+    Serializer() = default;
+
     template <typename T>
     Serializer(const T& obj)
         : serialazable_(std::make_unique<Serializable<T>>(obj))
     {}
 
     void Dump(std::ostream &os) const {
-        serialazable_->Dump(os);
+        if (serialazable_) {
+            serialazable_->Dump(os);
+        }
     }
 private:
     struct ISerializable {
@@ -40,12 +46,3 @@ private:
 
     std::unique_ptr<ISerializable> serialazable_;
 };
-
-template <typename T>
-    requires requires(const T &t) {
-        Dump(std::declval<std::ostream&>(), t);
-    }
-std::ostream &operator <<(std::ostream &os, const T& t) {
-    Dump(os, t);
-    return os;
-}

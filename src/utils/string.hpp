@@ -18,7 +18,7 @@ void Split(const StringLike &src, OutIt dest) {
 }
 
 template <typename StringLike, std::output_iterator<std::string> OutIt>
-void Split(const StringLike &src, OutIt dest, int maxsplit) {
+void Split(const StringLike &src, int maxsplit, OutIt dest) {
     std::istringstream ss(src);
     std::string token;
     for (int i = 0; i < maxsplit; ++i) {
