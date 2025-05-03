@@ -5,11 +5,13 @@
 #include "utils/stream_operators.hpp"
 
 TEST(Events, Creation) {
-    auto DumpAndCompare = [](const Event &event, std::string_view str) {
-        std::ostringstream ss;
-        ss << event;
-        EXPECT_EQ(ss.view(), str);
-    };
+
+#define DumpAndCompare(event, str) \
+    do {                           \
+        std::ostringstream ss;     \
+        ss << (event);               \
+        EXPECT_EQ(ss.view(), (str)); \
+    } while(0)
 
     using enum EventId;
     
@@ -37,6 +39,8 @@ TEST(Events, Creation) {
     DumpAndCompare(ev, "12:34 13 message");
 
     std::cout << "Here to check if standart operator << still works " << 69420 << "\n";
+
+#undef DumpAndComare
 }
 
 namespace {

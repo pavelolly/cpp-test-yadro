@@ -37,46 +37,52 @@ TEST(StringUtils, IsDigit) {
     EXPECT_FALSE(IsDigit("0.125"sv));
 }
 
+#define I(...) { __VA_ARGS__ }
+
 TEST(StringUtils, Split) {
     std::vector<std::string> splitted;
     splitted.reserve(10);
-
-    auto SplitAndCompare = [&](std::string str, std::vector<std::string> expected) {
-        splitted.clear();
-        Split(str, std::back_inserter(splitted));
-
-        EXPECT_EQ(splitted, expected);
-    };
+    
+#define SplitAndCompare(str, expected) \
+    do {                               \
+        splitted.clear();              \
+        Split((str), std::back_inserter(splitted)); \
+        EXPECT_EQ(splitted, std::vector<std::string>(expected)); \
+    } while(0)
 
     SplitAndCompare("", {});
     SplitAndCompare(" \n\t", {});
 
-    SplitAndCompare("Hello, World!",        {"Hello,", "World!"});
-    SplitAndCompare("  Hello,   World!   ", {"Hello,", "World!"});
-    SplitAndCompare("  H ello ,   Wor ld!   ", {"H", "ello", ",", "Wor", "ld!"});
-    SplitAndCompare("\n H\t\rello , \v Wor ld! \n\n ", {"H", "ello", ",", "Wor", "ld!"});
+    SplitAndCompare("Hello, World!",           I("Hello,", "World!"));
+    SplitAndCompare("  Hello,   World!   ",    I("Hello,", "World!"));
+    SplitAndCompare("  H ello ,   Wor ld!   ", I("H", "ello", ",", "Wor", "ld!"));
+    SplitAndCompare("\n H\t\rello , \v Wor ld! \n\n ", I("H", "ello", ",", "Wor", "ld!"));
+
+#undef SplitAndCompare
 }
 
 TEST(StringUtils, SplitMaxSplit) {
     std::vector<std::string> splitted;
     splitted.reserve(10);
 
-    auto SplitAndCompare = [&](std::string str, int maxsplit, std::vector<std::string> expected) {
-        splitted.clear();
-        Split(str, maxsplit, std::back_inserter(splitted));
-
-        EXPECT_EQ(splitted, expected);
-    };
+#define SplitAndCompare(str, maxsplit, expected) \
+    do {                  \
+        splitted.clear(); \
+        Split((str), (maxsplit), std::back_inserter(splitted));  \
+        EXPECT_EQ(splitted, std::vector<std::string>(expected)); \
+    } while(0)
 
     SplitAndCompare("", 1, {});
     SplitAndCompare(" \n\t", 12, {});
 
-    SplitAndCompare("Hello, World!", 1,        {"Hello,", " World!"});
-    SplitAndCompare("  Hello,   World!   ", 2, {"Hello,", "World!", "   "});
-    SplitAndCompare("  H ello ,   Wor ld!   ", 3, {"H", "ello", ",", "   Wor ld!   "});
-    SplitAndCompare("\n H\t\rello , \v Wor ld! \n\n ", 10, {"H", "ello", ",", "Wor", "ld!"});
+    SplitAndCompare("Hello, World!",                   1,  I("Hello,", " World!"));
+    SplitAndCompare("  Hello,   World!   ",            2,  I("Hello,", "World!", "   "));
+    SplitAndCompare("  H ello ,   Wor ld!   ",         3,  I("H", "ello", ",", "   Wor ld!   "));
+    SplitAndCompare("\n H\t\rello , \v Wor ld! \n\n ", 10, I("H", "ello", ",", "Wor", "ld!"));
 
-    SplitAndCompare("Hello, World!", -1, {"Hello, World!"});
+    SplitAndCompare("Hello, World!", -1, I("Hello, World!"));
+
+#undef SplitAndCompare
 }
 
 int main(int argc, char** argv) {
