@@ -62,13 +62,15 @@ InputData LoadInputData(std::istream &is) {
     }
 
     // other line: list of events
-
-    // TODO: check time sequence
-
     while (ReadNextLine()) {
         Event event;
         ss >> event;
         if (!ss || !IsEmpty(ss)) {
+            throw InputDataFormatError(line_number, std::move(line_content));
+        }
+
+        // check time sequence
+        if (!res.events.empty() && res.events.back().GetTime() > event.GetTime()) {
             throw InputDataFormatError(line_number, std::move(line_content));
         }
 
