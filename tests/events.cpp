@@ -23,20 +23,26 @@ TEST(Events, Creation) {
     ev = Event::Create<IN_CLIENT_START>(time, ClientTable("client2", 12));
     DumpAndCompare(ev, "12:34 2 client2 12");
 
+    time = TimeStamp(2, 35);
+
     ev = Event::Create<IN_CLIENT_WAIT>(time, ClientInfo("client3"));
-    DumpAndCompare(ev, "12:34 3 client3");
+    DumpAndCompare(ev, "02:35 3 client3");
 
     ev = Event::Create<IN_CLIENT_GONE>(time, ClientInfo("client3"));
-    DumpAndCompare(ev, "12:34 4 client3");
+    DumpAndCompare(ev, "02:35 4 client3");
+
+    time = TimeStamp(23, 1);
 
     ev = Event::Create<OUT_CLIENT_GONE>(time, ClientInfo("client1"));
-    DumpAndCompare(ev, "12:34 11 client1");
+    DumpAndCompare(ev, "23:01 11 client1");
 
     ev = Event::Create<OUT_CLIENT_START>(time, ClientTable("client2", 14));
-    DumpAndCompare(ev, "12:34 12 client2 14");
+    DumpAndCompare(ev, "23:01 12 client2 14");
+
+    time = TimeStamp(2, 2);
 
     ev = Event::Create<OUT_ERROR>(time, Error("message"));
-    DumpAndCompare(ev, "12:34 13 message");
+    DumpAndCompare(ev, "02:02 13 message");
 
     std::cout << "Here to check if standart operator << still works " << 69420 << "\n";
 

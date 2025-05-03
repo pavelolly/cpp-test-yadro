@@ -15,10 +15,10 @@ TEST(Load, TimeStamp) {
     } while(0)
 
     LoadAndCompare("12:34", TimeStamp(12, 34));
-    LoadAndCompare("02:34", TimeStamp(2, 34));
-    LoadAndCompare("02:04", TimeStamp(2, 4));
-    LoadAndCompare("22:04", TimeStamp(22, 4));
-    LoadAndCompare("23:59", TimeStamp(23, 59));
+    LoadAndCompare(" 02:34", TimeStamp(2, 34));
+    LoadAndCompare("  02:04", TimeStamp(2, 4));
+    LoadAndCompare("\t\v22:04", TimeStamp(22, 4));
+    LoadAndCompare("\n23:59", TimeStamp(23, 59));
 
 #define ExpectFail(src) \
     do { \
@@ -30,15 +30,16 @@ TEST(Load, TimeStamp) {
 
     ExpectFail("asjdh");
     ExpectFail("123");
-    ExpectFail("24:00");
-    ExpectFail("2b4:00");
+    ExpectFail("  24:00");
+    ExpectFail(" 2b4:00");
     ExpectFail("12:61");
-    ExpectFail("12:-61");
+    ExpectFail("\n12:-61");
     ExpectFail("");
-    // ExpectFail("12:3");
-    // ExpectFail("2:13");
-    // ExpectFail("2:3");
-    // ExpectFail("1:2:-61");
+    ExpectFail("\t");
+    ExpectFail("12:3");
+    ExpectFail("2:13");
+    ExpectFail("2:3");
+    ExpectFail("1:2:-61");
 
 #undef LoadAndCompare
 #undef ExpectFail
