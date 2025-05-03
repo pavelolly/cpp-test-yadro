@@ -86,7 +86,9 @@ std::istream &Load(std::istream &is, Event &dest) {
             event = Event::Create<IN_CLIENT_GONE>(time, client_info);
             break;
         }
-        default:
+        case OUT_CLIENT_GONE:
+        case OUT_CLIENT_START:
+        case OUT_ERROR:
             assert(false && "event_id is not input event");
     }
 
