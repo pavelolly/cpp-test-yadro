@@ -6,10 +6,10 @@ void Dump(std::ostream &os, const ClientInfo &src) {
     os << src.client_name;
 }
 
-// TODO: handle client_name to be [a-zA-Z0-9]+
-
 namespace {
 
+// FIXME: write so it does not consume the whole string
+//        and leaves everything starting from the first invalid symbol
 std::istream &LoadClientName(std::istream &is, std::string &dest) {
     std::string name;
     is >> name;

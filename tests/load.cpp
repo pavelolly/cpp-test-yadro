@@ -109,9 +109,9 @@ TEST(Load, EventBody) {
     ExpectFail("1:2:-61 1 client");
 
     // invalid name
-    // ExpectFail("12:34 1 client");
-    // ExpectFail("02:13 1 clie_nt");
-    // ExpectFail("01:02: 1 #clie0nt");
+    ExpectFail("12:34 1 $cl^ient");
+    ExpectFail("01:02 1 #clie0nt");
+    ExpectFail("01:02 1 =");
 
     // invalid body
     ExpectFail("12:34 1");
