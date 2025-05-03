@@ -70,11 +70,11 @@ TEST(Load, EventBody) {
     event = Event::Create<EventId::IN_CLIENT_START>(TimeStamp(2, 34), ClientTable("client2", 1));
     LoadAndCompare("02:34 2 client2 1", event);
 
-    event = Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(2, 4), ClientInfo("cli2ent"));
-    LoadAndCompare("02:04 3 cli2ent", event);
+    event = Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(2, 4), ClientInfo("cli2ent-"));
+    LoadAndCompare("02:04 3 cli2ent-", event);
 
-    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), ClientInfo("2clie0nt"));
-    LoadAndCompare("00:00 4 2clie0nt", event);
+    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), ClientInfo("2clie_0nt"));
+    LoadAndCompare("00:00 4 2clie_0nt", event);
 
 
     event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), ClientInfo("2clie0nt"));
