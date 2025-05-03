@@ -16,13 +16,15 @@ bool IsOutputEventId(int val) {
 }
 
 bool IsEventId(int val) {
-    return IsInputEventId(val) || IsOutputEventId(val);
+    return IsInputEventId(val) || IsOutputEventId(val) || val == static_cast<int>(EventId::UNKNOWN);
 }
 
 void Dump(std::ostream &os, const Event &src) {
     Dump(os, src.GetTime());
     os << " " << static_cast<int>(src.GetId()) << " ";
-    src.GetBodySerializer().Dump(os);
+    if (src.GetId() != EventId::UNKNOWN) {
+        src.GetBodySerializer().Dump(os);
+    }
 }
 
 std::istream &Load(std::istream &is, Event &dest) {
@@ -86,6 +88,7 @@ std::istream &Load(std::istream &is, Event &dest) {
             event = Event::Create<IN_CLIENT_GONE>(time, client_info);
             break;
         }
+        case UNKNOWN:
         case OUT_CLIENT_GONE:
         case OUT_CLIENT_START:
         case OUT_ERROR:

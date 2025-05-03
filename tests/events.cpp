@@ -55,17 +55,27 @@ template <typename T, typename = void>
 struct exists : std::false_type {};
 
 template <typename T>
-struct exists<T, std::void_t<T>> : std::true_type {};
+struct exists<T, std::void_t<typename T::type>> : std::true_type {};
 
 template <typename T>
 inline constexpr bool exists_v = exists<T>::value;
 
 #define ASSERT_EXISTS(type) static_assert(exists_v<type>)
+#define ASSERT_NOT_EXISTS(type) static_assert(!exists_v<type>)
 
 } // namespace
 
 TEST(Events, EventIds) {
     using enum EventId;
+
+    ASSERT_NOT_EXISTS(BodyTypeFor<UNKNOWN>);
+    ASSERT_EXISTS(BodyTypeFor<IN_CLIENT_CAME>);
+    ASSERT_EXISTS(BodyTypeFor<IN_CLIENT_START>);
+    ASSERT_EXISTS(BodyTypeFor<IN_CLIENT_WAIT>);
+    ASSERT_EXISTS(BodyTypeFor<IN_CLIENT_GONE>);
+    ASSERT_EXISTS(BodyTypeFor<OUT_CLIENT_GONE>);
+    ASSERT_EXISTS(BodyTypeFor<OUT_CLIENT_START>);
+    ASSERT_EXISTS(BodyTypeFor<OUT_ERROR>);
 
     EventId all_ids[] = {
         IN_CLIENT_CAME,
@@ -94,16 +104,11 @@ TEST(Events, EventIds) {
                 EXPECT_TRUE(IsOutputEventId(static_cast<int>(id)));
                 EXPECT_FALSE(IsInputEventId(static_cast<int>(id)));
                 break;
+            case UNKNOWN:
+                EXPECT_TRUE(IsEventId(static_cast<int>(id)));
+                break;
         }
     }
-
-    ASSERT_EXISTS(BodyTypeForId<IN_CLIENT_CAME>);
-    ASSERT_EXISTS(BodyTypeForId<IN_CLIENT_START>);
-    ASSERT_EXISTS(BodyTypeForId<IN_CLIENT_WAIT>);
-    ASSERT_EXISTS(BodyTypeForId<IN_CLIENT_GONE>);
-    ASSERT_EXISTS(BodyTypeForId<OUT_CLIENT_GONE>);
-    ASSERT_EXISTS(BodyTypeForId<OUT_CLIENT_START>);
-    ASSERT_EXISTS(BodyTypeForId<OUT_ERROR>);
 }
 
 TEST(Events, PolymorphicCompare) {
