@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+
 template <typename T>
     requires requires(const T &t) {
         Dump(std::declval<std::ostream&>(), t);

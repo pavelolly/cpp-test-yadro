@@ -21,9 +21,9 @@ bool IsEventId(int val);
 
 template <EventId Id> struct BodyTypeFor {};
 template <> struct BodyTypeFor<EventId::IN_CLIENT_CAME>   { using type = ClientInfo; };
+template <> struct BodyTypeFor<EventId::IN_CLIENT_GONE>   { using type = ClientInfo; };
 template <> struct BodyTypeFor<EventId::IN_CLIENT_START>  { using type = ClientTable; };
 template <> struct BodyTypeFor<EventId::IN_CLIENT_WAIT>   { using type = ClientInfo; };
-template <> struct BodyTypeFor<EventId::IN_CLIENT_GONE>   { using type = ClientInfo; };
 template <> struct BodyTypeFor<EventId::OUT_CLIENT_GONE>  { using type = ClientInfo; };
 template <> struct BodyTypeFor<EventId::OUT_CLIENT_START> { using type = ClientTable; };
 template <> struct BodyTypeFor<EventId::OUT_ERROR>        { using type = Error; };

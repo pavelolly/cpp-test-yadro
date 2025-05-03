@@ -62,6 +62,10 @@ InputData LoadInputData(std::istream &is) {
     }
 
     // other line: list of events
+
+    // TODO: check tables
+    // TODO: check time sequence
+
     while (ReadNextLine()) {
         Event event;
         ss >> event;

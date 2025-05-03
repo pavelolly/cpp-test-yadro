@@ -8,7 +8,7 @@ TEST(Load, TimeStamp) {
 
 #define LoadAndCompare(src, time) \
     do { \
-        std::istringstream ss((src)); \
+        std::istringstream ss(src);   \
         TimeStamp dest;               \
         ss >> dest;                   \
         EXPECT_EQ(dest, (time));      \
@@ -22,7 +22,7 @@ TEST(Load, TimeStamp) {
 
 #define ExpectFail(src) \
     do { \
-        std::istringstream ss((src)); \
+        std::istringstream ss(src); \
         TimeStamp dest;               \
         ss >> dest;                   \
         EXPECT_TRUE(ss.fail());       \
@@ -46,6 +46,21 @@ TEST(Load, TimeStamp) {
 }
 
 TEST(Load, EventBody) {
+
+#define LoadAndCompare(src, event) \
+    do { \
+        std::istringstream ss(src); \
+        Event dest;                 \
+        ss >> dest;                 \
+        EXPECT_EQ(dest.GetId(),   (event).GetId());   \
+        EXPECT_EQ(dest.GetTime(), (event).GetTime()); \
+        ASSERT_EQ(dest.HasBody(), (event).HasBody()); \
+        /* polymorphic compare */ \
+        EXPECT_EQ(dest.GetBody(), (event).GetBody()); \
+    while (0)
+
+        
+#undef LoadAndCompare
 
 }
 

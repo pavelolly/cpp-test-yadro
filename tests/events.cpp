@@ -60,6 +60,8 @@ struct exists<T, std::void_t<T>> : std::true_type {};
 template <typename T>
 inline constexpr bool exists_v = exists<T>::value;
 
+#define ASSERT_EXISTS(type) static_assert(exists_v<type>)
+
 } // namespace
 
 TEST(Events, EventIds) {
@@ -95,17 +97,38 @@ TEST(Events, EventIds) {
         }
     }
 
-#define EXISTS(type) static_assert(exists_v<type>)
+    ASSERT_EXISTS(BodyTypeForId<IN_CLIENT_CAME>);
+    ASSERT_EXISTS(BodyTypeForId<IN_CLIENT_START>);
+    ASSERT_EXISTS(BodyTypeForId<IN_CLIENT_WAIT>);
+    ASSERT_EXISTS(BodyTypeForId<IN_CLIENT_GONE>);
+    ASSERT_EXISTS(BodyTypeForId<OUT_CLIENT_GONE>);
+    ASSERT_EXISTS(BodyTypeForId<OUT_CLIENT_START>);
+    ASSERT_EXISTS(BodyTypeForId<OUT_ERROR>);
+}
 
-    EXISTS(BodyTypeForId<IN_CLIENT_CAME>);
-    EXISTS(BodyTypeForId<IN_CLIENT_START>);
-    EXISTS(BodyTypeForId<IN_CLIENT_WAIT>);
-    EXISTS(BodyTypeForId<IN_CLIENT_GONE>);
-    EXISTS(BodyTypeForId<OUT_CLIENT_GONE>);
-    EXISTS(BodyTypeForId<OUT_CLIENT_START>);
-    EXISTS(BodyTypeForId<OUT_ERROR>);
+TEST(Events, PolymorphicCompare) {
+    auto client_info  = ClientInfo("client");
+    auto client_table = ClientTable("client", 1);
+    auto error        = Error("error");
 
-#undef EXISTS
+    EXPECT_EQ(client_info, client_info);
+    EXPECT_EQ(client_info, static_cast<Body &>(client_info));
+
+    EXPECT_EQ(client_table, client_table);
+    EXPECT_EQ(client_table, static_cast<Body &>(client_table));
+
+    EXPECT_EQ(static_cast<Body &>(error), error);
+    EXPECT_EQ(static_cast<Body &>(error), static_cast<Body &>(error));
+
+    EXPECT_NE(client_info, client_table);
+    EXPECT_NE(client_info, error);
+    EXPECT_NE(client_info, static_cast<Body &>(client_table));
+    EXPECT_NE(client_info, static_cast<Body &>(error));
+
+    EXPECT_NE(static_cast<Body &>(client_table), client_info);
+    EXPECT_NE(static_cast<Body &>(client_table), error);
+    EXPECT_NE(static_cast<Body &>(client_table), static_cast<Body &>(client_info));
+    EXPECT_NE(static_cast<Body &>(client_table), static_cast<Body &>(error));
 }
 
 int main(int argc, char** argv) {

@@ -8,7 +8,7 @@ struct TimeStamp : public std::chrono::minutes {
         : std::chrono::minutes(hour * 60 + minutes)
     {}
     
-    int GetHours()   const {
+    int GetHours() const {
         return (*this / 60).count();
     }
     int GetMinutes() const {
