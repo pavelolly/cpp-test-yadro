@@ -63,7 +63,6 @@ InputData LoadInputData(std::istream &is) {
 
     // other line: list of events
 
-    // TODO: check tables
     // TODO: check time sequence
 
     while (ReadNextLine()) {
@@ -72,6 +71,15 @@ InputData LoadInputData(std::istream &is) {
         if (!ss || !IsEmpty(ss)) {
             throw InputDataFormatError(line_number, std::move(line_content));
         }
+
+        // check tables
+        if (event.GetId() == EventId::IN_CLIENT_START) {
+            auto table_number = event.GetBody<ClientTable>().table_number;
+            if (table_number < 1 || table_number > res.club_info.ntables)  {
+                throw InputDataFormatError(line_number, std::move(line_content));
+            }
+        }
+
         res.events.push_back(std::move(event));
     }
 
