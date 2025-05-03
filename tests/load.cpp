@@ -47,9 +47,7 @@ TEST(Load, TimeStamp) {
 #undef ExpectFail
 }
 
-#define I(...) __VA_ARGS__
-
-TEST(Load, EventBody) {
+TEST(Load, Event) {
 
 #define LoadAndCompare(src, event) \
     do { \
@@ -124,10 +122,6 @@ TEST(Load, EventBody) {
 }
 
 #if 0
-
-TEST(Load, Event) {
-
-}
 
 TEST(Load, InputData) {
 
