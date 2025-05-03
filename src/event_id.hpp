@@ -3,6 +3,7 @@
 #include "body.hpp"
 
 enum class EventId {
+    // TODO: Unknown = 0
     // Input Events
     IN_CLIENT_CAME = 1,
     IN_CLIENT_START,

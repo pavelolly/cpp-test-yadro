@@ -54,6 +54,28 @@ public:
     const Serializer &GetBodySerializer() const {
         return body_serializer_;
     }
+
+    bool operator ==(const Event &other) const {
+        if (id_ != other.id_) {
+            return false;
+        }
+        if (time_ != other.time_) {
+            return false;
+        }
+        if (HasBody() != other.HasBody()) {
+            return false;
+        }
+        if (!HasBody() && !other.HasBody()) {
+            return true;
+        }
+        if (*body_ != *other.body_) {
+            return false;
+        }
+        return true;        
+    }
+    bool operator !=(const Event &other) const {
+        return !operator ==(other);
+    }
 private:
     template <typename BodyType = Body>
         requires std::is_base_of_v<Body, BodyType>

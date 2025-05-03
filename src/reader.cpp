@@ -16,19 +16,19 @@ InputData LoadInputData(std::istream &is) {
 
     auto ReadNextLine = [&] () -> bool {
         std::getline(is, line_content);
-        if (is.fail() || is.bad()) {
+        if ((is.bad() || is.fail()) && !is.eof()) {
             throw std::runtime_error("LoadInputData: error occured while reading from std::istream");
         }
         ++line_number;
         ss = std::istringstream {line_content};
 
-        return !is.eof();
+        return static_cast<bool>(is);
     };
 
     auto IsEmpty = [](std::istream &is) -> bool {
         char dummy;
         is >> dummy;
-        return is.eof();
+        return !is;
     };
 
     // line 1: ntables;

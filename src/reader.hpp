@@ -11,18 +11,16 @@ struct ComputerClubInfo {
     TimeStamp time_open;
     TimeStamp time_close;
     int cost_per_hour;
+
+    bool operator ==(const ComputerClubInfo &) const = default;
 };
 
 struct InputData {
     ComputerClubInfo club_info;
     std::vector<Event> events;
-};
 
-struct LoadErrorInfo {
-    int line_number;
-    std::string line_content;
+    bool operator ==(const InputData &) const = default;
 };
-
 
 class InputDataFormatError : public std::runtime_error {
 public:
