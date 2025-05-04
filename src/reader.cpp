@@ -14,7 +14,7 @@ InputData LoadInputData(std::istream &is) {
 
     InputData res;
 
-    auto ReadNextLine = [&] () -> bool {
+    auto ReadNextLine = [&] {
         std::getline(is, line_content);
         if ((is.bad() || is.fail()) && !is.eof()) {
             throw std::runtime_error("LoadInputData: error occured while reading from std::istream");
@@ -25,7 +25,7 @@ InputData LoadInputData(std::istream &is) {
         return static_cast<bool>(is);
     };
 
-    auto IsEmpty = [](std::istream &is) -> bool {
+    auto IsEmpty = [](std::istream &is) {
         char dummy;
         is >> dummy;
         return !is;
@@ -48,6 +48,11 @@ InputData LoadInputData(std::istream &is) {
 
     ss >> res.club_info.time_open >> res.club_info.time_close;
     if (!ss || !IsEmpty(ss)) {
+        throw InputDataFormatError(line_number, std::move(line_content));
+    }
+
+    // check proper timing of range of work
+    if (res.club_info.time_open >= res.club_info.time_close) {
         throw InputDataFormatError(line_number, std::move(line_content));
     }
 

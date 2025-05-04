@@ -255,7 +255,42 @@ TEST(Load, InputData) {
         "15:52 4 client4\n",
         data);
 
+#if 0
+
+#define ExpectFail(src, line) \
+    do { \
+        std::istringstream ss(src); \
+        try {                       \
+            InputData dest = LoadInputData(ss); \
+            FAIL();                             \
+        } catch (InputDataFormatError &e) {     \
+            EXPECT_EQ(std::string(e.what()), std::string(error));       \
+        }                                       \
+    } while (0)
+
+    ExpectFailAbsence("", 1);
+
+    ExpectFail("s",      1);
+    ExpectFail("1s\n"s,   1);
+    ExpectFail("1  s\t", 1);
+
+    ExpectFailAbsence("100\n", 2);
+
+    ExpectFail(
+        "100\n"
+        "1:2",
+
+        "FormatError: Line 2: '1:2'");
+    ExpectFail(
+        "100\n"
+        "10:24",
+
+        "FormatError: Line 2: '10:24'");
+
 #undef LoadAndCompare
+#undef ExpectFail
+
+#endif // if 0
 }
 
 int main(int argc, char** argv) {

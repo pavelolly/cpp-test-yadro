@@ -28,7 +28,7 @@ public:
         : std::runtime_error(std::format("FormatError: Absense of neccessary Line {}", line_number))
     {}
     InputDataFormatError(int line_number, std::string line_content)
-        : std::runtime_error(std::format("FormatError: Line {}: {}", line_number, std::move(line_content)))
+        : std::runtime_error(std::format("FormatError: Line {}: '{}'", line_number, std::move(line_content)))
     {}
 };
 

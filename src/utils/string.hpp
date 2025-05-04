@@ -12,8 +12,7 @@ void Split(const StringLike &src, OutIt dest) {
     std::istringstream ss(src);
     std::string token;
     while (ss >> token) {
-        *dest++ = std::move(token);
-        token = std::string{};
+        *dest++ = std::exchange(token, std::string{});
     }
 }
 
@@ -25,15 +24,24 @@ void Split(const StringLike &src, int maxsplit, OutIt dest) {
         if (!(ss >> token)) {
            return;
         }
-        *dest++ = std::move(token);
-        token = std::string{};
+        *dest++ = std::exchange(token, std::string{});
     }
+    
     if (!ss.eof()) {
         std::copy(std::istreambuf_iterator<char>(ss),
                   std::istreambuf_iterator<char>(),
                   std::back_inserter(token));
 
         *dest = std::move(token);
+    }
+}
+
+template <typename StringLike, std::output_iterator<std::string> OutIt>
+void Split(const StringLike &src, char delim, OutIt dest) {
+    std::istringstream ss(src);
+    std::string token; 
+    while (std::getline(ss, token, delim)) {
+        *dest++ = std::exchange(token, std::string{});
     }
 }
 

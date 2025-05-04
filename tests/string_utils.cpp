@@ -85,6 +85,30 @@ TEST(StringUtils, SplitMaxSplit) {
 #undef SplitAndCompare
 }
 
+TEST(StringUtils, SplitDelim) {
+    std::vector<std::string> splitted;
+    splitted.reserve(10);
+
+#define SplitAndCompare(str, delim, expected) \
+    do {                  \
+        splitted.clear(); \
+        Split((str), (delim), std::back_inserter(splitted));  \
+        EXPECT_EQ(splitted, std::vector<std::string>(expected)); \
+    } while(0)
+
+    SplitAndCompare("", 'a', {});
+    SplitAndCompare(" \n\t", '\n', I(" ", "\t"));
+
+    SplitAndCompare("Hello, World!",                   ' ',   I("Hello,", "World!"));
+    SplitAndCompare("  Hello,   World!   ",            ' ',   I("", "", "Hello,", "", "", "World!", "", ""));
+    SplitAndCompare("  H\nello , \n Wor ld! \n\n",     '\n',  I("  H", "ello , ", " Wor ld! ", ""));
+    SplitAndCompare("\n H\t\rello , \v Wor ld! \n\n ", 'o',   I("\n H\t\rell", " , \v W", "r ld! \n\n "));
+
+    SplitAndCompare("Hello, World!", '!', I("Hello, World"));
+
+#undef SplitAndCompare
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
