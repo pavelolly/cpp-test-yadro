@@ -8,7 +8,7 @@
     https://stackoverflow.com/questions/46737054/vectorunique-ptra-using-initialization-list?utm_source=chatgpt.com
 */
 
-// namespace {
+namespace {
 
 template<typename T>
 struct movable_il {
@@ -17,9 +17,9 @@ struct movable_il {
     movable_il(T&& in): t(std::move(in)) {}
 };
 
-// } // namespace
+} // namespace
 
-template<class Container, typename T = typename Container::value_type>
-Container FromIl(std::initializer_list<movable_il<T>> il) {
+template<class Container>
+Container FromIl(std::initializer_list<movable_il<typename Container::value_type>> il) {
   return Container(std::make_move_iterator(il.begin()), std::make_move_iterator(il.end()));
 }
