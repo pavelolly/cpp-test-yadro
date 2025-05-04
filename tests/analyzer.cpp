@@ -3,7 +3,7 @@
 #include <iterator>
 #include <algorithm>
 
-#include "club_info_analyzer.hpp"
+#include "analyzer.hpp"
 #include "utils/stream_operators.hpp"
 
 TEST(ProcessInputData, Events) {
@@ -69,7 +69,7 @@ TEST(ProcessInputData, Events) {
        "19:00 11 client3\n"
     );
 
-#undef LoadAndCompareEvents
+#undef LoadAndCompare
 }
 
 TEST(ProcessInputData, TableInfos) {

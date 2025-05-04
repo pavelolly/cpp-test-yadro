@@ -5,7 +5,7 @@
 #include <queue>
 #include <cassert>
 
-#include "club_info_analyzer.hpp"
+#include "analyzer.hpp"
 #include "utils/stream_operators.hpp"
 #include "errors.hpp"
 

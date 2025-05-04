@@ -2,7 +2,7 @@
 #include <fstream>
 #include <format>
 
-#include "club_info_analyzer.hpp"
+#include "analyzer.hpp"
 
 // TODO: C++ 17 compat ?
 
