@@ -16,7 +16,10 @@ TEST(Load, TimeStamp) {
         std::istringstream ss(src);   \
         TimeStamp dest;               \
         ss >> dest;                   \
-        EXPECT_EQ(dest, (time));      \
+        EXPECT_TRUE(static_cast<bool>(ss)); \
+        if (ss) {                     \
+            EXPECT_EQ(dest, (time));  \
+        }                             \
     } while(0)
 
     LoadAndCompare("12:34", TimeStamp(12, 34));
@@ -57,12 +60,15 @@ TEST(Load, Event) {
         std::istringstream ss(src); \
         Event dest;                 \
         ss >> dest;                 \
-        EXPECT_EQ(dest.GetId(),   (event).GetId());   \
-        EXPECT_EQ(dest.GetTime(), (event).GetTime()); \
-        EXPECT_EQ(dest.HasBody(), (event).HasBody()); \
-        if (dest.HasBody()) {                         \
-            EXPECT_EQ(dest.GetBody(), (event).GetBody()); \
-        } \
+        EXPECT_TRUE(static_cast<bool>(ss)); \
+        if (ss) {                     \
+            EXPECT_EQ(dest.GetId(),   (event).GetId());   \
+            EXPECT_EQ(dest.GetTime(), (event).GetTime()); \
+            EXPECT_EQ(dest.HasBody(), (event).HasBody()); \
+            if (dest.HasBody()) {                         \
+                EXPECT_EQ(dest.GetBody(), (event).GetBody()); \
+            } \
+        }     \
     } while (0)
 
     auto event = Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(12, 34), ClientInfo("client"));
