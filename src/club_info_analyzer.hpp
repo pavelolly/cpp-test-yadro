@@ -18,7 +18,6 @@ struct InputData {
 };
 
 struct TableInfo {
-    int number;
     int earnings;
     TimeStamp time_used;
 };
