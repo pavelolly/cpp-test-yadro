@@ -8,7 +8,7 @@
 
 TEST(ProcessInputData, Events) {
 
-#define LoadAndCompareEvents(src, expected_events) \
+#define LoadAndCompare(src, expected_events) \
     do { \
         std::istringstream is(src);         \
         InputData data = LoadInputData(is); \
@@ -29,7 +29,7 @@ TEST(ProcessInputData, Events) {
         }     \
     } while(0)
 
-    LoadAndCompareEvents(
+    LoadAndCompare(
        "3\n"
        "09:00 19:00\n"
        "10\n"
@@ -67,6 +67,52 @@ TEST(ProcessInputData, Events) {
        "12:43 4 client2\n"
        "15:52 4 client4\n"
        "19:00 11 client3\n"
+    );
+
+#undef LoadAndCompareEvents
+}
+
+TEST(ProcessInputData, TableInfos) {
+
+    #define LoadAndCompare(src, map) \
+        do { \
+            std::istringstream is(src);         \
+            InputData data = LoadInputData(is); \
+            OutputData res = ProcessInputData(data);         \
+            EXPECT_EQ(res.table_infos.size(), (map).size()); \
+            if (res.table_infos.size() == (map).size()) {    \
+                for (int i = 1; i <= res.table_infos.size(); ++i) {              \
+                    EXPECT_EQ(res.table_infos[i].earnings, (map)[i].earnings);   \
+                    EXPECT_EQ(res.table_infos[i].time_used, (map)[i].time_used); \
+                }                                                                \
+            } \
+        } while (0)
+
+    std::map<int, TableInfo> map {
+        {1, {70, TimeStamp(5, 58)}},
+        {2, {30, TimeStamp(2, 18)}},
+        {3, {90, TimeStamp(8, 1)}},
+    };
+
+    LoadAndCompare(
+        "3\n"
+       "09:00 19:00\n"
+       "10\n"
+       "08:48 1 client1\n"
+       "09:41 1 client1\n"
+       "09:48 1 client2\n"
+       "09:52 3 client1\n"
+       "09:54 2 client1 1\n"
+       "10:25 2 client2 2\n"
+       "10:58 1 client3\n"
+       "10:59 2 client3 3\n"
+       "11:30 1 client4\n"
+       "11:35 2 client4 2\n"
+       "11:45 3 client4\n"
+       "12:33 4 client1\n"
+       "12:43 4 client2\n"
+       "15:52 4 client4\n",
+       map
     );
 }
 

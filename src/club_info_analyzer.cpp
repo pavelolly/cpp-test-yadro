@@ -107,15 +107,20 @@ OutputData ProcessInputData(const InputData &data) {
     res.time_start = data.time_open;
     res.time_end   = data.time_close;
 
+    for (int i = 1; i <= data.ntables; ++i) {
+        res.table_infos.insert({i, TableInfo{}});
+    }
+
     /* these store "references" to somewehre in data.events */
 
     // if clients_in_club[name] == 0 then client is in the club but not using any table
     // names are required in alphabetical order
     std::map<std::string_view, int> clients_in_club;
-
     // busy_tables[0] is dummy for convinience (table_numbers in events are in range 1..ntables)
     std::vector<std::string_view> busy_tables(data.ntables + 1);
     std::queue<std::string_view> clients_queue;
+
+    std::vector<TimeStamp> acquire_timestamps(data.ntables + 1, TimeStamp::Invalid());
 
     auto ClientEnters = [&](TimeStamp time, std::string_view name) {
         if (clients_in_club.contains(name)) {
@@ -143,7 +148,20 @@ OutputData ProcessInputData(const InputData &data) {
 
         clients_in_club[name] = table;
         busy_tables[table] = name;
+        acquire_timestamps[table] = time;
         return;
+    };
+
+    auto CountTimeAndMoney = [&] (TimeStamp time, int table) {
+        if (acquire_timestamps[table] == TimeStamp::Invalid()) {
+            return;
+        }
+            
+        TimeStamp time_used = time - acquire_timestamps[table];
+        int hours_used = time_used.GetMinutes() == 0 ? time_used.GetHours() : time_used.GetHours() + 1;
+
+        res.table_infos[table].earnings  += hours_used * data.cost_per_hour;
+        res.table_infos[table].time_used += time_used;
     };
 
     auto ClientLeaves = [&](TimeStamp time, std::string_view name) {
@@ -154,7 +172,11 @@ OutputData ProcessInputData(const InputData &data) {
         }
 
         if (int table = it->second; table != 0) {
-            busy_tables[it->second] = std::string_view{};
+            busy_tables[table] = std::string_view{};
+
+            assert(acquire_timestamps[table] != TimeStamp::Invalid());
+            CountTimeAndMoney(time, table);
+            acquire_timestamps[table] = TimeStamp::Invalid();
             
             if (!clients_queue.empty()) {
                 auto queued = clients_queue.back();
@@ -223,7 +245,8 @@ OutputData ProcessInputData(const InputData &data) {
         }
     });
 
-    for (const auto& [name, _] : clients_in_club) {
+    for (const auto& [name, table] : clients_in_club) {
+        CountTimeAndMoney(data.time_close, table);
         res.AddEvent<EventId::OUT_CLIENT_GONE>(data.time_close, { std::string(name) });
     }
 

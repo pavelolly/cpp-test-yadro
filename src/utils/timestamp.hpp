@@ -3,11 +3,18 @@
 #include <chrono>
 
 struct TimeStamp : public std::chrono::minutes {
-    TimeStamp() = default;
-    TimeStamp(int hour, int minutes)
+    TimeStamp(int hour = 0, int minutes = 0)
         : std::chrono::minutes(hour * 60 + minutes)
     {}
+
+    TimeStamp(std::chrono::minutes other)
+        : std::chrono::minutes(other)
+    {}
     
+    static TimeStamp Invalid() {
+        return TimeStamp(24, 0);
+    }
+
     int GetHours() const {
         return (*this / 60).count();
     }
