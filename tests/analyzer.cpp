@@ -20,11 +20,11 @@ TEST(ProcessInputData, Events) {
             std::back_inserter(events));             \
         EXPECT_EQ(res.events.size(), events.size()); \
         if (res.events.size() == events.size()) {    \
-            for (int i = 0; i < res.events.size(); ++i) {    \
-                std::ostringstream ss1, ss2;                 \
-                ss1 << res.events[i];                        \
-                ss2 << events[i];                            \
-                EXPECT_EQ(ss1.view(), ss2.view());           \
+            for (int i = 0; i < (int)res.events.size(); ++i) { \
+                std::ostringstream ss1, ss2;                   \
+                ss1 << res.events[i];                          \
+                ss2 << events[i];                              \
+                EXPECT_EQ(ss1.view(), ss2.view());             \
             } \
         }     \
     } while(0)

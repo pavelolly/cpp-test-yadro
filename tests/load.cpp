@@ -165,11 +165,11 @@ TEST(Load, InputData_Success) {
             EXPECT_EQ(dest.cost_per_hour, (data).cost_per_hour); \
             EXPECT_EQ(dest.events.size(), (data).events.size()); \
             if (dest.events.size() == (data).events.size()) {    \
-                for (int i = 0; i < dest.events.size(); ++i) {   \
-                    std::ostringstream ss1, ss2;                 \
-                    ss1 << dest.events[i];                       \
-                    ss2 << (data).events[i];                     \
-                    EXPECT_EQ(ss1.view(), ss2.view());           \
+                for (int i = 0; i < (int)dest.events.size(); ++i) {   \
+                    std::ostringstream ss1, ss2;                      \
+                    ss1 << dest.events[i];                            \
+                    ss2 << (data).events[i];                          \
+                    EXPECT_EQ(ss1.view(), ss2.view());                \
                 } \
             }     \
         } catch(InputDataFormatError &e) {  \
