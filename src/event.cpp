@@ -8,11 +8,11 @@
 namespace internal {
 
 SerializableBody::SerializableBody(const SerializableBody &other)
-    : body_(other.body_->Clone())
+    : body_(other.body_ ? other.body_->Clone() : nullptr)
 {}
 
 SerializableBody &SerializableBody::operator =(const SerializableBody &other) {
-    body_ = other.body_->Clone();
+    body_ = other.body_ ? other.body_->Clone() : nullptr;
     return *this;
 }
 
@@ -64,7 +64,7 @@ std::istream &Load(std::istream &is, Event &dest) {
     }
 
     int event_id = std::stoi(id);
-    if (!IsInputEventId(event_id)) {
+    if (!IsEventId(event_id)) {
         is.setstate(std::ios::failbit);
         return is;
     }
@@ -100,11 +100,31 @@ std::istream &Load(std::istream &is, Event &dest) {
             }
             return is;
         }
-        case UNKNOWN:
-        case OUT_CLIENT_GONE:
-        case OUT_CLIENT_START:
-        case OUT_ERROR:
-            assert(false && "event_id is not input event");
+        case OUT_CLIENT_GONE: {
+            body::ClientInfo client_info;
+            if (is >> client_info) {
+                dest = Event::Create<OUT_CLIENT_GONE>(time, client_info);
+            }
+            return is;
+        }
+        case OUT_CLIENT_START: {
+            body::ClientTable client_table;
+            if (is >> client_table) {
+                dest = Event::Create<OUT_CLIENT_START>(time, client_table);
+            }
+            return is;
+        }
+        case OUT_ERROR: {
+            body::Error error;
+            if (is >> error) {
+                dest = Event::Create<OUT_ERROR>(time, error);
+            }
+            return is;
+        }
+        case UNKNOWN: {
+            dest = Event();
+            return is;
+        }
     }
 
     // unreachable

@@ -4,6 +4,8 @@
 #include <string>
 #include <string_view>
 
+#include "errors.hpp"
+
 namespace body {
 
 struct ClientInfo {
@@ -28,4 +30,4 @@ void Dump(std::ostream &os, const body::ClientTable &src);
 std::istream &Load(std::istream &is, body::ClientTable &dest);
 
 void Dump(std::ostream &os, const body::Error &src);
-// no need to load error
+std::istream &Load(std::istream &is, body::Error &dest);

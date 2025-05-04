@@ -64,3 +64,20 @@ std::istream &Load(std::istream &is, body::ClientTable &dest) {
 void Dump(std::ostream &os, const body::Error &src) {
     os << src.message;
 }
+
+std::istream &Load(std::istream &is, body::Error &dest) {
+    std::string str;
+    is >> str;
+    if (!is) {
+        return is;
+    }
+
+    std::string_view message;
+    if ((message = error::GetError(str)).empty()) {
+        is.setstate(std::ios::failbit);
+        return is;
+    }
+
+    dest.message = message;
+    return is;
+}

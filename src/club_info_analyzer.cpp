@@ -75,6 +75,11 @@ InputData LoadInputData(std::istream &is) {
         if (!ss || !IsEmpty(ss)) {
             throw InputDataFormatError(line_number, std::move(line_content));
         }
+        
+        // check input event
+        if (!IsInputEventId(static_cast<int>(event.GetId()))) {
+            throw InputDataFormatError(line_number, std::move(line_content));
+        }
 
         // check time sequence
         if (!res.events.empty() && res.events.back().GetTime() > event.GetTime()) {

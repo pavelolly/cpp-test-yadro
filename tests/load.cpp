@@ -103,10 +103,8 @@ TEST(Load, Event) {
     ExpectFail("");
     ExpectFail(" \n\t");
 
-    // invalid id or id of output event
+    // invalid id
     ExpectFail("12:34 5 client");
-    ExpectFail("12:34 11 client");
-    ExpectFail("12:34 13 client");
     ExpectFail("12:34 234 client");
 
     // invalid time
@@ -142,12 +140,14 @@ TEST(Load, InputData_Success) {
             EXPECT_EQ(dest.time_close, (data).time_close);       \
             EXPECT_EQ(dest.cost_per_hour, (data).cost_per_hour); \
             EXPECT_EQ(dest.events.size(), (data).events.size()); \
-            for (int i = 0; i < dest.events.size(); ++i) {       \
-                std::ostringstream ss1, ss2;                     \
-                ss1 << dest.events[i];                           \
-                ss2 << (data).events[i];                         \
-                EXPECT_EQ(ss1.view(), ss2.view());               \
-            } \
+            if (dest.events.size() == (data).events.size()) {    \
+                for (int i = 0; i < dest.events.size(); ++i) {   \
+                    std::ostringstream ss1, ss2;                 \
+                    ss1 << dest.events[i];                       \
+                    ss2 << (data).events[i];                     \
+                    EXPECT_EQ(ss1.view(), ss2.view());           \
+                } \
+            }     \
         } catch(InputDataFormatError &e) {  \
             std::cout << e.what() << "\n";  \
             FAIL();                         \
