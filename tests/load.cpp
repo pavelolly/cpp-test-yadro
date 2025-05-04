@@ -7,7 +7,7 @@
 #include "utils/string.hpp"
 
 #include "event.hpp"
-#include "reader.hpp"
+#include "club_info_analyzer.hpp"
 
 TEST(Load, TimeStamp) {
 
