@@ -56,15 +56,17 @@ TEST(Load, TimeStamp) {
 
 TEST(Load, Event) {
 
-// TODO: compare dumps
 #define LoadAndCompare(src, event) \
     do { \
         std::istringstream ss(src); \
         Event dest;                 \
         ss >> dest;                 \
         EXPECT_TRUE(static_cast<bool>(ss)); \
-        if (ss) {                     \
-            EXPECT_EQ(dest, (event)); \
+        if (ss) {                        \
+            std::ostringstream ss1, ss2; \
+            ss1 << dest;                 \
+            ss2 << (event);              \
+            EXPECT_EQ(ss1.view(), ss2.view()); \
         }     \
     } while (0)
 
@@ -135,7 +137,17 @@ TEST(Load, InputData_Success) {
         std::istringstream ss(src);             \
         try {                                   \
             InputData dest = LoadInputData(ss); \
-            EXPECT_EQ((data), dest);            \
+            EXPECT_EQ(dest.ntables, (data).ntables);             \
+            EXPECT_EQ(dest.time_open, (data).time_open);         \
+            EXPECT_EQ(dest.time_close, (data).time_close);       \
+            EXPECT_EQ(dest.cost_per_hour, (data).cost_per_hour); \
+            EXPECT_EQ(dest.events.size(), (data).events.size()); \
+            for (int i = 0; i < dest.events.size(); ++i) {       \
+                std::ostringstream ss1, ss2;                     \
+                ss1 << dest.events[i];                           \
+                ss2 << (data).events[i];                         \
+                EXPECT_EQ(ss1.view(), ss2.view());               \
+            } \
         } catch(InputDataFormatError &e) {  \
             std::cout << e.what() << "\n";  \
             FAIL();                         \
