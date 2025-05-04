@@ -4,6 +4,7 @@
 #include "utils/timestamp.cpp"
 #include "utils/stream_operators.hpp"
 #include "utils/movable_il.hpp"
+#include "utils/string.hpp"
 
 #include "event.hpp"
 #include "reader.hpp"
@@ -58,7 +59,7 @@ TEST(Load, Event) {
         ss >> dest;                 \
         EXPECT_EQ(dest.GetId(),   (event).GetId());   \
         EXPECT_EQ(dest.GetTime(), (event).GetTime()); \
-        ASSERT_EQ(dest.HasBody(), (event).HasBody()); \
+        EXPECT_EQ(dest.HasBody(), (event).HasBody()); \
         if (dest.HasBody()) {                         \
             EXPECT_EQ(dest.GetBody(), (event).GetBody()); \
         } \
@@ -123,6 +124,7 @@ TEST(Load, Event) {
 #undef ExpectFail
 }
 
+// TODO: split this
 TEST(Load, InputData) {
 
 #define LoadAndCompare(src, data) \
@@ -255,42 +257,212 @@ TEST(Load, InputData) {
         "15:52 4 client4\n",
         data);
 
-#if 0
-
 #define ExpectFail(src, line) \
     do { \
-        std::istringstream ss(src); \
-        try {                       \
+        std::vector<std::string> lines;     \
+        lines.reserve(10);                  \
+        Split((src), '\n', std::back_inserter(lines));                \
+        InputDataFormatError expected_error((line), lines[line - 1]); \
+        try { \
+            std::istringstream ss(src);         \
             InputData dest = LoadInputData(ss); \
             FAIL();                             \
         } catch (InputDataFormatError &e) {     \
-            EXPECT_EQ(std::string(e.what()), std::string(error));       \
-        }                                       \
+            EXPECT_EQ(std::string(e.what()),               \
+                      std::string(expected_error.what())); \
+        } \
     } while (0)
 
+#define ExpectFailAbsence(src, line) \
+    do { \
+        InputDataFormatError expected_error((line)); \
+        try { \
+            std::istringstream ss(src);         \
+            InputData dest = LoadInputData(ss); \
+            FAIL();                             \
+        } catch (InputDataFormatError &e) {     \
+            EXPECT_EQ(std::string(e.what()),               \
+                      std::string(expected_error.what())); \
+        } \
+    } while (0)
+
+    // absence of line 1
     ExpectFailAbsence("", 1);
+    ExpectFail("\n\n\n\n", 1);
 
+    // invalid line 1: ntables
     ExpectFail("s",      1);
-    ExpectFail("1s\n"s,   1);
+    ExpectFail("1s\n",   1);
     ExpectFail("1  s\t", 1);
+    ExpectFail("-1", 1);
+    ExpectFail("1.0", 1);
 
+    // absence of line 2
+    ExpectFailAbsence("100", 2);
     ExpectFailAbsence("100\n", 2);
-
+    
+    // invalid line 2: timestamps
     ExpectFail(
         "100\n"
-        "1:2",
-
-        "FormatError: Line 2: '1:2'");
+        "1:2", 2);
     ExpectFail(
         "100\n"
-        "10:24",
+        "10:24\n", 2);
+    ExpectFail(
+        "100\n"
+        "10:24 s", 2);
+    ExpectFail(
+        "100\n"
+        "10:24 1:2", 2);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28 asd", 2);
+    // time open >= timne close
+    ExpectFail(
+        "100\n"
+        "10:28 10:24", 2);
+    ExpectFail(
+        "100\n"
+        "10:24 10:24", 2);
 
-        "FormatError: Line 2: '10:24'");
+    // absence of line 3
+    ExpectFailAbsence(
+        "100\n"
+        "10:24 10:28", 3);
+    ExpectFailAbsence(
+        "100\n"
+        "10:24 10:28\n", 3);
+    
+    // invalid line 3: cost_per_hour
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "s", 3);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "-1", 3);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "1.0", 3);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100 4", 3);
+
+
+    // invalid event
+    // time
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "1:2 1 client", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "s 1 client", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "25:87 1 client", 4);
+    // id
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 j client", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 1j client", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 0 client", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 11 client", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 123 client", 4);
+    // body
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 1", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 2 client", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 3 client   1", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 4 clie+nt", 4);
+    // event in the middle
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 4 client\n"
+        "10:28 1 client1\n"
+        "10:29 2 client#1\n"
+        "11:28 1 client1\n", 6);
+    // wrong time sequence
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 4 client\n"
+        "10:23 4 client\n", 5);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 4 client\n"
+        "01:02 4 client\n", 5);
+    // wrong table_number
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 2 client -1\n", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 2 client 0\n", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 2 client 1000\n", 4);
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 2 client s\n", 4);-
 
 #undef LoadAndCompare
 #undef ExpectFail
 
-#endif // if 0
 }
 
 int main(int argc, char** argv) {

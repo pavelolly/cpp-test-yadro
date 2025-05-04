@@ -8,8 +8,7 @@ void Dump(std::ostream &os, const ClientInfo &src) {
 
 namespace {
 
-// FIXME: write so it does not consume the whole string
-//        and leaves everything starting from the first invalid symbol
+// TODO: regex
 std::istream &LoadClientName(std::istream &is, std::string &dest) {
     std::string name;
     is >> name;

@@ -7,6 +7,7 @@
 #include "event.hpp"
 #include "utils/stream_operators.hpp"
 
+
 InputData LoadInputData(std::istream &is) {
     int line_number = 0;
     std::string line_content;
@@ -37,7 +38,7 @@ InputData LoadInputData(std::istream &is) {
     }
 
     ss >> res.club_info.ntables;
-    if (!ss || !IsEmpty(ss)) {
+    if (!ss || !IsEmpty(ss) || res.club_info.ntables <= 0) {
         throw InputDataFormatError(line_number, std::move(line_content));
     }
 
@@ -62,7 +63,7 @@ InputData LoadInputData(std::istream &is) {
     }
 
     ss >> res.club_info.cost_per_hour;
-    if (!ss || !IsEmpty(ss)) {
+    if (!ss || !IsEmpty(ss) || res.club_info.cost_per_hour <= 0) {
         throw InputDataFormatError(line_number, std::move(line_content));
     }
 

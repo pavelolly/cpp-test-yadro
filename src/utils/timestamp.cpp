@@ -14,6 +14,7 @@ void Dump(std::ostream &os, const TimeStamp &src) {
     os.copyfmt(fmt_state);
 }
 
+// TODO: regex
 std::istream &Load(std::istream &is, TimeStamp &dest) {
     std::istream::sentry s(is);
     if (!s) {
