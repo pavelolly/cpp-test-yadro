@@ -1,7 +1,7 @@
 
 include(GoogleTest)
 
-set(TESTS events string_utils load)
+set(TESTS events string_utils load analyzer)
 
 foreach(test ${TESTS})
     add_executable(${test} ${test}.cpp)
