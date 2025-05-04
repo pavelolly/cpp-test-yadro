@@ -37,8 +37,8 @@ InputData LoadInputData(std::istream &is) {
         throw InputDataFormatError(line_number);
     }
 
-    ss >> res.club_info.ntables;
-    if (!ss || !IsEmpty(ss) || res.club_info.ntables <= 0) {
+    ss >> res.ntables;
+    if (!ss || !IsEmpty(ss) || res.ntables <= 0) {
         throw InputDataFormatError(line_number, std::move(line_content));
     }
 
@@ -47,13 +47,13 @@ InputData LoadInputData(std::istream &is) {
         throw InputDataFormatError(line_number);
     }
 
-    ss >> res.club_info.time_open >> res.club_info.time_close;
+    ss >> res.time_open >> res.time_close;
     if (!ss || !IsEmpty(ss)) {
         throw InputDataFormatError(line_number, std::move(line_content));
     }
 
     // check proper timing of range of work
-    if (res.club_info.time_open >= res.club_info.time_close) {
+    if (res.time_open >= res.time_close) {
         throw InputDataFormatError(line_number, std::move(line_content));
     }
 
@@ -62,8 +62,8 @@ InputData LoadInputData(std::istream &is) {
         throw InputDataFormatError(line_number);
     }
 
-    ss >> res.club_info.cost_per_hour;
-    if (!ss || !IsEmpty(ss) || res.club_info.cost_per_hour <= 0) {
+    ss >> res.cost_per_hour;
+    if (!ss || !IsEmpty(ss) || res.cost_per_hour <= 0) {
         throw InputDataFormatError(line_number, std::move(line_content));
     }
 
@@ -83,7 +83,7 @@ InputData LoadInputData(std::istream &is) {
         // check tables
         if (event.GetId() == EventId::IN_CLIENT_START) {
             auto table_number = event.GetBody<ClientTable>().table_number;
-            if (table_number < 1 || table_number > res.club_info.ntables)  {
+            if (table_number < 1 || table_number > res.ntables)  {
                 throw InputDataFormatError(line_number, std::move(line_content));
             }
         }

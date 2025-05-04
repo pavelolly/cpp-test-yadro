@@ -7,17 +7,11 @@
 #include "utils/timestamp.hpp"
 #include "event.hpp"
 
-struct ComputerClubInfo {
+struct InputData {
     int ntables;
     TimeStamp time_open;
     TimeStamp time_close;
     int cost_per_hour;
-
-    bool operator ==(const ComputerClubInfo &) const = default;
-};
-
-struct InputData {
-    ComputerClubInfo club_info;
     std::vector<Event> events;
 
     bool operator ==(const InputData &) const = default;

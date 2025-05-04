@@ -147,7 +147,7 @@ TEST(Load, InputData_Success) {
     } while(0)
 
     InputData data {
-        { 3, TimeStamp(12, 34), TimeStamp(23, 43), 100 },
+        3, TimeStamp(12, 34), TimeStamp(23, 43), 100,
         {}
     };
     LoadAndCompare(
@@ -180,7 +180,7 @@ TEST(Load, InputData_Success) {
     */
 
     data = InputData {
-        { 3, TimeStamp(12, 34), TimeStamp(23, 43), 100 },
+        3, TimeStamp(12, 34), TimeStamp(23, 43), 100,
         FromIl<std::vector<Event>>(
             {
                 Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), ClientInfo("client"))
@@ -195,7 +195,7 @@ TEST(Load, InputData_Success) {
         data);
 
     data = InputData {
-        { 3, TimeStamp(12, 34), TimeStamp(23, 43), 100 },
+        3, TimeStamp(12, 34), TimeStamp(23, 43), 100,
         FromIl<std::vector<Event>>(
             {
                 Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), ClientInfo("client")),
@@ -216,7 +216,7 @@ TEST(Load, InputData_Success) {
         data);
 
     data = InputData {
-        { 3, TimeStamp(9, 0), TimeStamp(19, 0), 10 },
+        3, TimeStamp(9, 0), TimeStamp(19, 0), 10,
         FromIl<std::vector<Event>>(
             {
                 Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(8, 48), ClientInfo("client1")),
