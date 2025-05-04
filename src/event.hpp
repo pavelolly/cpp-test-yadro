@@ -55,7 +55,7 @@ private:
     std::unique_ptr<ISerializable> serializable_;
 };
 
-} // namespace
+} // namespace internal
 
 class Event {
 public:

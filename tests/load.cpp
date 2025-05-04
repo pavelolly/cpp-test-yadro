@@ -53,6 +53,7 @@ TEST(Load, TimeStamp) {
 #undef ExpectFail
 }
 
+
 TEST(Load, Event) {
 
 #define LoadAndCompare(src, event) \
@@ -130,8 +131,8 @@ TEST(Load, Event) {
 #undef ExpectFail
 }
 
-// TODO: split this
-TEST(Load, InputData) {
+
+TEST(Load, InputData_Success) {
 
 #define LoadAndCompare(src, data) \
     do { \
@@ -263,6 +264,10 @@ TEST(Load, InputData) {
         "15:52 4 client4\n",
         data);
 
+#undef LoadAndCompare
+}
+
+
 #define ExpectFail(src, line) \
     do { \
         std::vector<std::string> lines;     \
@@ -278,6 +283,8 @@ TEST(Load, InputData) {
                       std::string(expected_error.what())); \
         } \
     } while (0)
+
+TEST(Load, InputData_BadClubInfo) {
 
 #define ExpectFailAbsence(src, line) \
     do { \
@@ -357,8 +364,11 @@ TEST(Load, InputData) {
         "10:24 10:28\n"
         "100 4", 3);
 
+#undef ExpectFailAbsence
+}
 
-    // invalid event
+
+TEST(Load, InputData_BadEvents_Syntax) {
     // time
     ExpectFail(
         "100\n"
@@ -375,6 +385,7 @@ TEST(Load, InputData) {
         "10:24 10:28\n"
         "100\n"
         "25:87 1 client", 4);
+
     // id
     ExpectFail(
         "100\n"
@@ -401,6 +412,7 @@ TEST(Load, InputData) {
         "10:24 10:28\n"
         "100\n"
         "10:24 123 client", 4);
+
     // body
     ExpectFail(
         "100\n"
@@ -422,6 +434,7 @@ TEST(Load, InputData) {
         "10:24 10:28\n"
         "100\n"
         "10:24 4 clie+nt", 4);
+
     // event in the middle
     ExpectFail(
         "100\n"
@@ -431,6 +444,10 @@ TEST(Load, InputData) {
         "10:28 1 client1\n"
         "10:29 2 client#1\n"
         "11:28 1 client1\n", 6);
+}
+
+
+TEST(Load, InputData_BadEvents_Logic) {
     // wrong time sequence
     ExpectFail(
         "100\n"
@@ -444,6 +461,7 @@ TEST(Load, InputData) {
         "100\n"
         "10:24 4 client\n"
         "01:02 4 client\n", 5);
+
     // wrong table_number
     ExpectFail(
         "100\n"
@@ -465,11 +483,10 @@ TEST(Load, InputData) {
         "10:24 10:28\n"
         "100\n"
         "10:24 2 client s\n", 4);
+}
 
-#undef LoadAndCompare
 #undef ExpectFail
 
-}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
