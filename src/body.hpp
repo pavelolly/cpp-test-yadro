@@ -17,6 +17,7 @@ struct Body {
     virtual ~Body() = default;
 };
 
+// TODO: use compiler generated operator ==()... somehow...
 struct ClientInfo : Body {
     std::string client_name;
 
