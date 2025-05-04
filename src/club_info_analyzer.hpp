@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 
 #include "utils/timestamp.hpp"
 #include "event.hpp"
@@ -20,6 +21,19 @@ struct InputData {
     std::vector<Event> events;
 
     bool operator ==(const InputData &) const = default;
+};
+
+struct TableInfo {
+    int number;
+    int earnings;
+    TimeStamp time_used;
+};
+
+struct OutputData {
+    TimeStamp time_start;
+    TimeStamp time_end;
+    std::vector<Event> events;
+    std::unordered_map<int, TableInfo> table_infos;
 };
 
 class InputDataFormatError : public std::runtime_error {
