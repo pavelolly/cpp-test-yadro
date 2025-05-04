@@ -2,7 +2,6 @@
 #include <iterator>
 #include <string>
 #include <algorithm>
-#include <unordered_set>
 #include <queue>
 #include <cassert>
 
@@ -23,7 +22,7 @@ InputData LoadInputData(std::istream &is) {
             throw std::runtime_error("LoadInputData: error occured while reading from std::istream");
         }
         ++line_number;
-        ss = std::istringstream {line_content};
+        ss = std::istringstream { line_content };
 
         return static_cast<bool>(is);
     };
@@ -106,7 +105,8 @@ OutputData ProcessInputData(const InputData &data) {
     /* these store "references" to somewehre in data.events */
 
     // if clients_in_club[name] == 0 then client is in the club but not using any table
-    std::unordered_map<std::string_view, int> clients_in_club;
+    // names are required in alphabetical order
+    std::map<std::string_view, int> clients_in_club;
 
     // busy_tables[0] is dummy for convinience (table_numbers in events are in range 1..ntables)
     std::vector<std::string_view> busy_tables(data.ntables + 1);
@@ -217,6 +217,10 @@ OutputData ProcessInputData(const InputData &data) {
             assert(false && "ProcessInputData: output or unknown event in a list of input events");
         }
     });
+
+    for (const auto& [name, _] : clients_in_club) {
+        res.AddEvent<EventId::OUT_CLIENT_GONE>(data.time_close, { std::string(name) });
+    }
 
     return res;
 }

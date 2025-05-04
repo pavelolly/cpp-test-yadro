@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 #include "utils/timestamp.hpp"
 #include "event.hpp"
@@ -27,7 +27,8 @@ struct OutputData {
     TimeStamp time_start;
     TimeStamp time_end;
     std::vector<Event> events;
-    std::unordered_map<int, TableInfo> table_infos;
+    // need table numbers in order
+    std::map<int, TableInfo> table_infos;
 
     template <EventId Id>
     void AddEvent(TimeStamp time, BodyTypeForId<Id> body) {
@@ -35,6 +36,7 @@ struct OutputData {
     }
 };
 
+// TODO: better error reports
 class InputDataFormatError : public std::runtime_error {
 public:
     InputDataFormatError(int line_number)
