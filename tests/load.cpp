@@ -56,6 +56,7 @@ TEST(Load, TimeStamp) {
 
 TEST(Load, Event) {
 
+// TODO: compare dumps
 #define LoadAndCompare(src, event) \
     do { \
         std::istringstream ss(src); \
@@ -67,23 +68,23 @@ TEST(Load, Event) {
         }     \
     } while (0)
 
-    auto event = Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(12, 34), body::ClientInfo("client"));
+    auto event = Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(12, 34), { "client" });
     LoadAndCompare("12:34 1 client", event);
 
-    event = Event::Create<EventId::IN_CLIENT_START>(TimeStamp(2, 34), body::ClientTable("client2", 1));
+    event = Event::Create<EventId::IN_CLIENT_START>(TimeStamp(2, 34), { "client2", 1 });
     LoadAndCompare("02:34 2 client2 1", event);
 
-    event = Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(2, 4), body::ClientInfo("cli2ent-"));
+    event = Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(2, 4), { "cli2ent-" });
     LoadAndCompare("02:04 3 cli2ent-", event);
 
-    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), body::ClientInfo("2clie_0nt"));
+    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), { "2clie_0nt" });
     LoadAndCompare("00:00 4 2clie_0nt", event);
 
 
-    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), body::ClientInfo("2clie0nt"));
+    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), { "2clie0nt" });
     LoadAndCompare("00:00 4 2clie0nt 1", event); // ok: " 1" stays in stream
 
-    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), body::ClientInfo("2clie0nt"));
+    event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), { "2clie0nt" });
     LoadAndCompare("00:00 4 2clie0nt 2 3", event); // ok: " 2 3" stays in stream
 
 #define ExpectFail(src) \
@@ -179,7 +180,7 @@ TEST(Load, InputData_Success) {
     data = InputData {
         3, TimeStamp(12, 34), TimeStamp(23, 43), 100,
         {
-            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), body::ClientInfo("client"))
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), { "client" })
         }
     };
     LoadAndCompare(
@@ -192,10 +193,10 @@ TEST(Load, InputData_Success) {
     data = InputData {
         3, TimeStamp(12, 34), TimeStamp(23, 43), 100,
         {
-            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), body::ClientInfo("client")),
-            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(1, 11), body::ClientTable("client_2", 1)),
-            Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(2, 56), body::ClientInfo("client_3")),
-            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(11, 56), body::ClientInfo("client_2-"))
+            Event::Create<EventId::IN_CLIENT_CAME> (TimeStamp(1, 2),   { "client" }),
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(1, 11),  { "client_2", 1 }),
+            Event::Create<EventId::IN_CLIENT_WAIT> (TimeStamp(2, 56),  { "client_3" }),
+            Event::Create<EventId::IN_CLIENT_GONE> (TimeStamp(11, 56), { "client_2-" })
         }
     };
     LoadAndCompare(
@@ -211,28 +212,28 @@ TEST(Load, InputData_Success) {
     data = InputData {
         3, TimeStamp(9, 0), TimeStamp(19, 0), 10,
         {
-            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(8, 48), body::ClientInfo("client1")),
-            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(9, 41), body::ClientInfo("client1")),
-            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(9, 48), body::ClientInfo("client2")),
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(8, 48), { "client1" }),
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(9, 41), { "client1" }),
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(9, 48), { "client2" }),
 
-            Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(9, 52), body::ClientInfo("client1")),
+            Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(9, 52), { "client1" }),
 
-            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(9, 54), body::ClientTable("client1", 1)),
-            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(10, 25), body::ClientTable("client2", 2)),
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(9, 54), { "client1", 1 }),
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(10, 25), { "client2", 2 }),
 
-            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(10, 58), body::ClientInfo("client3")),
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(10, 58), { "client3" }),
             
-            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(10, 59), body::ClientTable("client3", 3)),
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(10, 59), { "client3", 3 }),
 
-            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(11, 30), body::ClientInfo("client4")),
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(11, 30), { "client4" }),
             
-            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(11, 35), body::ClientTable("client4", 2)),
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(11, 35), { "client4", 2 }),
             
-            Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(11, 45), body::ClientInfo("client4")),
+            Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(11, 45), { "client4" }),
             
-            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(12, 33), body::ClientInfo("client1")),
-            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(12, 43), body::ClientInfo("client2")),
-            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(15, 52), body::ClientInfo("client4"))
+            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(12, 33), { "client1" }),
+            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(12, 43), { "client2" }),
+            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(15, 52), { "client4" })
         }
     };
     LoadAndCompare(

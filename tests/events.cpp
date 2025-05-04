@@ -17,31 +17,31 @@ TEST(Events, Creation) {
     
     TimeStamp time(12, 34);
 
-    auto ev = Event::Create<IN_CLIENT_CAME>(time, body::ClientInfo("client1"));
+    auto ev = Event::Create<IN_CLIENT_CAME>(time, { "client1" });
     DumpAndCompare(ev, "12:34 1 client1");
 
-    ev = Event::Create<IN_CLIENT_START>(time, body::ClientTable("client2", 12));
+    ev = Event::Create<IN_CLIENT_START>(time, { "client2", 12 });
     DumpAndCompare(ev, "12:34 2 client2 12");
 
     time = TimeStamp(2, 35);
 
-    ev = Event::Create<IN_CLIENT_WAIT>(time, body::ClientInfo("client3"));
+    ev = Event::Create<IN_CLIENT_WAIT>(time, { "client3" });
     DumpAndCompare(ev, "02:35 3 client3");
 
-    ev = Event::Create<IN_CLIENT_GONE>(time, body::ClientInfo("client3"));
+    ev = Event::Create<IN_CLIENT_GONE>(time, { "client3" });
     DumpAndCompare(ev, "02:35 4 client3");
 
     time = TimeStamp(23, 1);
 
-    ev = Event::Create<OUT_CLIENT_GONE>(time, body::ClientInfo("client1"));
+    ev = Event::Create<OUT_CLIENT_GONE>(time, { "client1" });
     DumpAndCompare(ev, "23:01 11 client1");
 
-    ev = Event::Create<OUT_CLIENT_START>(time, body::ClientTable("client2", 14));
+    ev = Event::Create<OUT_CLIENT_START>(time, { "client2", 14 });
     DumpAndCompare(ev, "23:01 12 client2 14");
 
     time = TimeStamp(2, 2);
 
-    ev = Event::Create<OUT_ERROR>(time, body::Error("message"));
+    ev = Event::Create<OUT_ERROR>(time, { "message" });
     DumpAndCompare(ev, "02:02 13 message");
 
     std::cout << "Here to check if standart operator << still works " << 69420 << "\n";
