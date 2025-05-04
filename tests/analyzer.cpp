@@ -95,7 +95,7 @@ TEST(ProcessInputData, TableInfos) {
     };
 
     LoadAndCompare(
-        "3\n"
+       "3\n"
        "09:00 19:00\n"
        "10\n"
        "08:48 1 client1\n"

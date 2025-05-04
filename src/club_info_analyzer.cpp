@@ -253,3 +253,15 @@ OutputData ProcessInputData(const InputData &data) {
     return res;
 }
 
+void DumpOutputData(std::ostream &os, const OutputData &src) {
+    os << src.time_start << "\n";
+    std::for_each(src.events.begin(), src.events.end(), [&os](const Event &event) {
+        os << event << "\n";
+    });
+    os << src.time_end << "\n";
+    std::for_each(src.table_infos.begin(), src.table_infos.end(), [&os](const auto &pair) {
+        const auto &[table, info] = pair;
+        os << table << " " << info.earnings << " " << info.time_used << "\n";
+    });
+}
+

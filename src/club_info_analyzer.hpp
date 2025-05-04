@@ -34,6 +34,7 @@ struct OutputData {
 };
 
 // TODO: better error reports
+// TODO: report only line content (requirement of task)
 class InputDataFormatError : public std::runtime_error {
 public:
     InputDataFormatError(int line_number)
@@ -46,3 +47,4 @@ public:
 
 InputData LoadInputData(std::istream &is);
 OutputData ProcessInputData(const InputData &data);
+void DumpOutputData(std::ostream &os, const OutputData &src);
