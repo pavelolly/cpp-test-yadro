@@ -82,12 +82,32 @@ TEST(Load, Event) {
     event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), { "2clie_0nt" });
     LoadAndCompare("00:00 4 2clie_0nt", event);
 
-
     event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), { "2clie0nt" });
     LoadAndCompare("00:00 4 2clie0nt 1", event); // ok: " 1" stays in stream
 
     event = Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(0, 0), { "2clie0nt" });
     LoadAndCompare("00:00 4 2clie0nt 2 3", event); // ok: " 2 3" stays in stream
+
+    event = Event::Create<EventId::OUT_CLIENT_GONE>(TimeStamp(1, 2), { "wahteber" });
+    LoadAndCompare("01:02 11 wahteber ", event);
+
+    event = Event::Create<EventId::OUT_CLIENT_START>(TimeStamp(1, 2), { "wahteber", 12 });
+    LoadAndCompare("01:02 12 wahteber 12 ", event);
+
+    event = Event::Create<EventId::OUT_ERROR>(TimeStamp(1, 2), { error::YOU_SHALL_NOT_PASS });
+    LoadAndCompare("01:02 13 YouShallNotPass", event);
+
+    event = Event::Create<EventId::OUT_ERROR>(TimeStamp(1, 2), { error::NOT_OPEN_YET });
+    LoadAndCompare("01:02 13 NotOpenYet", event);
+
+    event = Event::Create<EventId::OUT_ERROR>(TimeStamp(1, 2), { error::PLACE_IS_BUSY });
+    LoadAndCompare("01:02 13 PlaceIsBusy", event);
+
+    event = Event::Create<EventId::OUT_ERROR>(TimeStamp(1, 2), { error::CLIENT_UNKNOWN });
+    LoadAndCompare("01:02 13 ClientUnknown", event);
+
+    event = Event::Create<EventId::OUT_ERROR>(TimeStamp(1, 2), { error::CAN_WAIT_NO_LONGER });
+    LoadAndCompare("01:02 13 ICanWaitNoLonger!", event);
 
 #define ExpectFail(src) \
     do { \
@@ -122,6 +142,10 @@ TEST(Load, Event) {
     ExpectFail("02:34 2 client");
     ExpectFail("02:04 3 ");
     ExpectFail("02:04 4 ");
+
+    // bad error
+    ExpectFail("12:34 13 whatever-that-is-not-an-error");
+    ExpectFail("12:34 13 $$#%@");
 
 #undef LoadAndCompare
 #undef ExpectFail
@@ -487,6 +511,13 @@ TEST(Load, InputData_BadEvents_Logic) {
         "10:24 10:28\n"
         "100\n"
         "10:24 2 client s\n", 4);
+
+    // output event
+    ExpectFail(
+        "100\n"
+        "10:24 10:28\n"
+        "100\n"
+        "10:24 11 client\n", 4);
 }
 
 #undef ExpectFail
