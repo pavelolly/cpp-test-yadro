@@ -16,8 +16,46 @@ class Event;
 void Dump(std::ostream &os, const Event &src);
 std::istream &Load(std::istream &os, Event &dest);
 
-// this should be included after all Dump functions declared /* (== *crap*) */
-#include "utils/serializer.hpp"
+namespace internal {
+
+class Serializer {
+public:
+    Serializer() = default;
+
+    template <typename T>
+    Serializer(const T& obj)
+        : serializable_(std::make_unique<Serializable<T>>(obj))
+    {}
+
+    void Dump(std::ostream &os) const {
+        if (serializable_) {
+            serializable_->Dump(os);
+        }
+    }
+private:
+    struct ISerializable {
+        virtual void Dump(std::ostream &os) const = 0;
+        virtual ~ISerializable() = default;
+    };
+
+    template <typename T>
+    class Serializable : public ISerializable {
+    public:
+        Serializable(const T& obj)
+            : obj_(obj)
+        {}
+
+        void Dump(std::ostream &os) const override {
+            ::Dump(os, obj_);
+        }
+    private:
+        const T &obj_;
+    };
+
+    std::unique_ptr<ISerializable> serializable_;
+};
+
+} // namespace
 
 class Event {
 public:
@@ -51,10 +89,6 @@ public:
         return static_cast<const BodyType &>(*body_);
     }
 
-    const Serializer &GetBodySerializer() const {
-        return body_serializer_;
-    }
-
     bool operator ==(const Event &other) const {
         if (id_ != other.id_) {
             return false;
@@ -86,9 +120,14 @@ private:
           body_serializer_(static_cast<BodyType &>(*body_))
     {}
 
+    const internal::Serializer &GetBodySerializer() const {
+        return body_serializer_;
+    }
+    friend void Dump(std::ostream &os, const Event &src);
+
     EventId id_;
     TimeStamp time_;
     std::unique_ptr<Body> body_;
 
-    Serializer body_serializer_;
+    internal::Serializer body_serializer_;
 };

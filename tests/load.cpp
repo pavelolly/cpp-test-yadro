@@ -458,7 +458,7 @@ TEST(Load, InputData) {
         "100\n"
         "10:24 10:28\n"
         "100\n"
-        "10:24 2 client s\n", 4);-
+        "10:24 2 client s\n", 4);
 
 #undef LoadAndCompare
 #undef ExpectFail
