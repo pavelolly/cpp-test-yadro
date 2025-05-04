@@ -108,7 +108,7 @@ OutputData ProcessInputData(const InputData &data) {
     // if clients_in_club[name] == 0 then client is in the club but not using any table
     std::unordered_map<std::string_view, int> clients_in_club;
 
-    // busy_tables[0] is dummy for convinience
+    // busy_tables[0] is dummy for convinience (table_numbers in events are in range 1..ntables)
     std::vector<std::string_view> busy_tables(data.ntables + 1);
     std::queue<std::string_view> clients_queue;
 
@@ -168,7 +168,7 @@ OutputData ProcessInputData(const InputData &data) {
             return;
         }
 
-        if (clients_queue.size() > data.ntables) {
+        if (clients_queue.size() > (std::size_t)data.ntables) {
             res.AddEvent<EventId::OUT_CLIENT_GONE>(time, { std::string(name) });
             ClientLeaves(time, name);
             return;
@@ -177,7 +177,7 @@ OutputData ProcessInputData(const InputData &data) {
         clients_queue.push(name);
     };
     
-    std::for_each(data.events.begin(), data.events.end(), [&](const auto &event) {
+    std::for_each(data.events.begin(), data.events.end(), [&](const Event &event) {
         res.events.push_back(event);
 
         auto id   = event.GetId();
