@@ -17,4 +17,6 @@ struct TimeStamp : public std::chrono::minutes {
 };
 
 void Dump(std::ostream &os, const TimeStamp &time);
+
+// guaranteed to consume 5 chars from stream
 std::istream &Load(std::istream &is, TimeStamp &time);

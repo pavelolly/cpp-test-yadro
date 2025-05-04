@@ -1,6 +1,7 @@
 #include "body.hpp"
 
 #include <algorithm>
+#include <regex>
 
 void Dump(std::ostream &os, const ClientInfo &src) {
     os << src.client_name;
@@ -8,14 +9,16 @@ void Dump(std::ostream &os, const ClientInfo &src) {
 
 namespace {
 
-// TODO: regex
 std::istream &LoadClientName(std::istream &is, std::string &dest) {
+    static std::regex pattern(R"([a-z0-9_-]+)");
+
     std::string name;
     is >> name;
     if (!is) {
         return is;
     }
-    if (std::any_of(name.begin(), name.end(), [](char c) { return !std::isdigit(c) && !std::isalpha(c) && c != '_' && c != '-'; })) {
+
+    if (!std::regex_match(name, pattern)) {
         is.setstate(std::ios::failbit);
         return is;
     }

@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <regex>
 
 void Dump(std::ostream &os, const TimeStamp &src) {
     std::ios fmt_state(nullptr);
@@ -14,59 +15,32 @@ void Dump(std::ostream &os, const TimeStamp &src) {
     os.copyfmt(fmt_state);
 }
 
-// TODO: regex
 std::istream &Load(std::istream &is, TimeStamp &dest) {
+    static std::regex pattern(R"(\d\d:\d\d)");
+
     std::istream::sentry s(is);
     if (!s) {
         return is;
     }
 
-    // read hours
-    int h1 = is.peek();
-    if (h1 < '0' || h1 > '2') {
-        is.setstate(std::ios::failbit);
-        return is;
-    }
-    is.ignore();
-    int h2 = is.peek();
-    if (!std::isdigit(h2)) {
-        is.setstate(std::ios::failbit);
-        return is;
-    }
-    is.ignore();
+    std::string time(5, '\0');
+    is.read(&*time.begin(), 5);
 
-    int hours = (h1 - '0') * 10 + (h2 - '0');
-    if (hours < 0 || hours > 23) {
+    if (!is) {
+        return is;
+    }
+
+    if (!std::regex_match(time, pattern)) {
         is.setstate(std::ios::failbit);
         return is;
     }
 
-    // read ':'
-    if (is.peek() != ':') {
+    int hours   = std::stoi(time.substr(0, 2));
+    int minutes = std::stoi(time.substr(3));
+    if (hours >= 24 || minutes >= 60) {
         is.setstate(std::ios::failbit);
         return is;
-    }
-    is.ignore();
-
-    // read minutes
-    int m1 = is.peek();
-    if (m1 < '0' || m1 > '5') {
-        is.setstate(std::ios::failbit);
-        return is;
-    }
-    is.ignore();
-    int m2 = is.peek();
-    if (!std::isdigit(m2)) {
-        is.setstate(std::ios::failbit);
-        return is;
-    }
-    is.ignore();
-
-    int minutes = (m1 - '0') * 10 + (m2 - '0');
-    if (minutes < 0 || minutes > 59) {
-        is.setstate(std::ios::failbit);
-        return is;
-    }
+    };
 
     dest = TimeStamp(hours, minutes);
     return is;
