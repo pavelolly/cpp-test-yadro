@@ -4,7 +4,7 @@
 #include <regex>
 
 void Dump(std::ostream &os, const ClientInfo &src) {
-    os << src.client_name;
+    os << src.name;
 }
 
 namespace {
@@ -32,7 +32,7 @@ std::istream &LoadClientName(std::istream &is, std::string &dest) {
 
 std::istream &Load(std::istream &is, ClientInfo &dest) {
     ClientInfo client_info;
-    LoadClientName(is, client_info.client_name);
+    LoadClientName(is, client_info.name);
     if (!is) {
         return is;
     }
@@ -42,12 +42,12 @@ std::istream &Load(std::istream &is, ClientInfo &dest) {
 }
 
 void Dump(std::ostream &os, const ClientTable &src) {
-    os << src.client_name << " " << src.table_number;
+    os << src.name << " " << src.table_number;
 }
 
 std::istream &Load(std::istream &is, ClientTable &dest) {
     ClientTable client_table;
-    LoadClientName(is, client_table.client_name);
+    LoadClientName(is, client_table.name);
     if (!is) {
         return is;
     }
