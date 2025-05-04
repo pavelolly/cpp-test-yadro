@@ -81,7 +81,7 @@ TEST(ProcessInputData, TableInfos) {
             OutputData res = ProcessInputData(data);         \
             EXPECT_EQ(res.table_infos.size(), (map).size()); \
             if (res.table_infos.size() == (map).size()) {    \
-                for (int i = 1; i <= res.table_infos.size(); ++i) {              \
+                for (int i = 1; i <= (int)res.table_infos.size(); ++i) {         \
                     EXPECT_EQ(res.table_infos[i].earnings, (map)[i].earnings);   \
                     EXPECT_EQ(res.table_infos[i].time_used, (map)[i].time_used); \
                 }                                                                \
