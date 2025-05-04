@@ -164,6 +164,8 @@ TEST(Load, InputData_Success) {
             ...
         };
 
+        UPD: you can do it now, as Event is now copyable. but the issue is still there
+
         actually you can't use initializer_list with non-copyable objects
         you can't even do this
 
@@ -176,11 +178,9 @@ TEST(Load, InputData_Success) {
 
     data = InputData {
         3, TimeStamp(12, 34), TimeStamp(23, 43), 100,
-        FromIl<std::vector<Event>>(
-            {
-                Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), body::ClientInfo("client"))
-            }
-        )
+        {
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), body::ClientInfo("client"))
+        }
     };
     LoadAndCompare(
         "3\n"
@@ -191,14 +191,12 @@ TEST(Load, InputData_Success) {
 
     data = InputData {
         3, TimeStamp(12, 34), TimeStamp(23, 43), 100,
-        FromIl<std::vector<Event>>(
-            {
-                Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), body::ClientInfo("client")),
-                Event::Create<EventId::IN_CLIENT_START>(TimeStamp(1, 11), body::ClientTable("client_2", 1)),
-                Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(2, 56), body::ClientInfo("client_3")),
-                Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(11, 56), body::ClientInfo("client_2-"))
-            }
-        )
+        {
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(1, 2), body::ClientInfo("client")),
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(1, 11), body::ClientTable("client_2", 1)),
+            Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(2, 56), body::ClientInfo("client_3")),
+            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(11, 56), body::ClientInfo("client_2-"))
+        }
     };
     LoadAndCompare(
         "3\n"
@@ -212,32 +210,30 @@ TEST(Load, InputData_Success) {
 
     data = InputData {
         3, TimeStamp(9, 0), TimeStamp(19, 0), 10,
-        FromIl<std::vector<Event>>(
-            {
-                Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(8, 48), body::ClientInfo("client1")),
-                Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(9, 41), body::ClientInfo("client1")),
-                Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(9, 48), body::ClientInfo("client2")),
+        {
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(8, 48), body::ClientInfo("client1")),
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(9, 41), body::ClientInfo("client1")),
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(9, 48), body::ClientInfo("client2")),
 
-                Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(9, 52), body::ClientInfo("client1")),
+            Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(9, 52), body::ClientInfo("client1")),
 
-                Event::Create<EventId::IN_CLIENT_START>(TimeStamp(9, 54), body::ClientTable("client1", 1)),
-                Event::Create<EventId::IN_CLIENT_START>(TimeStamp(10, 25), body::ClientTable("client2", 2)),
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(9, 54), body::ClientTable("client1", 1)),
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(10, 25), body::ClientTable("client2", 2)),
 
-                Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(10, 58), body::ClientInfo("client3")),
-                
-                Event::Create<EventId::IN_CLIENT_START>(TimeStamp(10, 59), body::ClientTable("client3", 3)),
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(10, 58), body::ClientInfo("client3")),
+            
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(10, 59), body::ClientTable("client3", 3)),
 
-                Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(11, 30), body::ClientInfo("client4")),
-                
-                Event::Create<EventId::IN_CLIENT_START>(TimeStamp(11, 35), body::ClientTable("client4", 2)),
-                
-                Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(11, 45), body::ClientInfo("client4")),
-                
-                Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(12, 33), body::ClientInfo("client1")),
-                Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(12, 43), body::ClientInfo("client2")),
-                Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(15, 52), body::ClientInfo("client4"))
-            }
-        )
+            Event::Create<EventId::IN_CLIENT_CAME>(TimeStamp(11, 30), body::ClientInfo("client4")),
+            
+            Event::Create<EventId::IN_CLIENT_START>(TimeStamp(11, 35), body::ClientTable("client4", 2)),
+            
+            Event::Create<EventId::IN_CLIENT_WAIT>(TimeStamp(11, 45), body::ClientInfo("client4")),
+            
+            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(12, 33), body::ClientInfo("client1")),
+            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(12, 43), body::ClientInfo("client2")),
+            Event::Create<EventId::IN_CLIENT_GONE>(TimeStamp(15, 52), body::ClientInfo("client4"))
+        }
     };
     LoadAndCompare(
         "3\n"

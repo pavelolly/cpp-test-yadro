@@ -128,4 +128,7 @@ std::istream &Load(std::istream &is, Event &dest) {
         case OUT_ERROR:
             assert(false && "event_id is not input event");
     }
+
+    // unreachable
+    return is;
 }
