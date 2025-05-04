@@ -28,6 +28,11 @@ struct OutputData {
     TimeStamp time_end;
     std::vector<Event> events;
     std::unordered_map<int, TableInfo> table_infos;
+
+    template <EventId Id>
+    void AddEvent(TimeStamp time, BodyTypeForId<Id> body) {
+        events.push_back(Event::Create<Id>(time, std::move(body)));
+    }
 };
 
 class InputDataFormatError : public std::runtime_error {

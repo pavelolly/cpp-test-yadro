@@ -1,10 +1,14 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <algorithm>
+#include <unordered_set>
+#include <queue>
+#include <cassert>
 
 #include "club_info_analyzer.hpp"
-
 #include "utils/stream_operators.hpp"
+#include "errors.hpp"
 
 InputData LoadInputData(std::istream &is) {
     int line_number = 0;
@@ -92,7 +96,6 @@ InputData LoadInputData(std::istream &is) {
     return res;
 };
 
-#if 0
 
 OutputData ProcessInputData(const InputData &data) {
     OutputData res;
@@ -100,33 +103,121 @@ OutputData ProcessInputData(const InputData &data) {
     res.time_start = data.time_open;
     res.time_end   = data.time_close;
 
-    std::unordered_set<std::string> clients_in_club;
+    /* these store "references" to somewehre in data.events */
 
-    for (auto &&event : data.events) {
-        // res.events.push_back(event.Clone());
+    // if clients_in_club[name] == 0 then client is in the club but not using any table
+    std::unordered_map<std::string_view, int> clients_in_club;
 
-        switch (event.GetId()) {
+    // busy_tables[0] is dummy for convinience
+    std::vector<std::string_view> busy_tables(data.ntables + 1);
+    std::queue<std::string_view> clients_queue;
+
+    auto ClientEnters = [&](TimeStamp time, std::string_view name) {
+        if (clients_in_club.contains(name)) {
+            res.AddEvent<EventId::OUT_ERROR>(time, { error::YOU_SHALL_NOT_PASS });
+            return;
+        } 
+        if (time < data.time_open || time > data.time_close) {
+            res.AddEvent<EventId::OUT_ERROR>(time, { error::NOT_OPEN_YET });
+            return;
+        }
+
+        clients_in_club.insert({name, 0});
+    };
+
+    auto ClientStarts = [&](TimeStamp time, std::string_view name, int table) {
+        if (!clients_in_club.contains(name)) {
+            res.AddEvent<EventId::OUT_ERROR>(time, { error::CLIENT_UNKNOWN });
+            return;
+        }
+
+        if (!busy_tables[table].empty() && busy_tables[table] != name) {
+            res.AddEvent<EventId::OUT_ERROR>(time, { error::PLACE_IS_BUSY });
+            return;
+        }
+
+        clients_in_club[name] = table;
+        busy_tables[table] = name;
+        return;
+    };
+
+    auto ClientLeaves = [&](TimeStamp time, std::string_view name) {
+        auto it = clients_in_club.find(name);
+        if (it == clients_in_club.end()) {
+            res.AddEvent<EventId::OUT_ERROR>(time, { error::CLIENT_UNKNOWN });
+            return;
+        }
+
+        if (int table = it->second; table != 0) {
+            busy_tables[it->second] = std::string_view{};
+            
+            if (!clients_queue.empty()) {
+                auto queued = clients_queue.back();
+                clients_queue.pop();
+
+                res.AddEvent<EventId::OUT_CLIENT_START>(time, { std::string(queued), table });
+                ClientStarts(time, queued, table);
+            }
+        }
+        clients_in_club.erase(it);
+    };
+
+    auto ClientWaits = [&](TimeStamp time, std::string_view name) {
+        if (std::any_of(busy_tables.begin() + 1, busy_tables.end(), [](std::string_view name) { return name.empty(); })) {
+            res.AddEvent<EventId::OUT_ERROR>(time, { error::CAN_WAIT_NO_LONGER });
+            return;
+        }
+
+        if (clients_queue.size() > data.ntables) {
+            res.AddEvent<EventId::OUT_CLIENT_GONE>(time, { std::string(name) });
+            ClientLeaves(time, name);
+            return;
+        }
+
+        clients_queue.push(name);
+    };
+    
+    std::for_each(data.events.begin(), data.events.end(), [&](const auto &event) {
+        res.events.push_back(event);
+
+        auto id   = event.GetId();
+        auto time = event.GetTime();
+
+        switch (id) {
             using enum EventId;
 
         case IN_CLIENT_CAME: {
-            const auto &name = event.GetBody<BodyTypeForId<IN_CLIENT_CAME>>().name;
-            if (clients_in_club.contains(name)) {
+            const auto &[name] = event.GetBody<BodyTypeForId<IN_CLIENT_CAME>>();
 
-            }
+            ClientEnters(time, name);
+            return;
         }
-        case IN_CLIENT_START:
-        case IN_CLIENT_WAIT:
-        case IN_CLIENT_GONE:
+        case IN_CLIENT_START: {
+            const auto &[name, table] = event.GetBody<BodyTypeForId<IN_CLIENT_START>>();
 
+            ClientStarts(time, name, table);
+            return;
+        }        
+        case IN_CLIENT_WAIT: {
+            const auto &[name] = event.GetBody<BodyTypeForId<IN_CLIENT_WAIT>>();
+
+            ClientWaits(time, name);
+            return;
+        }
+        case IN_CLIENT_GONE: {
+            const auto &[name] = event.GetBody<BodyTypeForId<IN_CLIENT_WAIT>>();
+
+            ClientLeaves(time, name);
+            return;
+        }
         case OUT_CLIENT_GONE:
         case OUT_CLIENT_START:
         case OUT_ERROR:
         case UNKNOWN:
             assert(false && "ProcessInputData: output or unknown event in a list of input events");
         }
-    }
+    });
 
     return res;
 }
 
-#endif
