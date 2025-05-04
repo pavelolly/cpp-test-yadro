@@ -1,12 +1,10 @@
-#include "club_info_analyzer.hpp"
-
 #include <iostream>
 #include <iterator>
 #include <string>
 
-#include "event.hpp"
-#include "utils/stream_operators.hpp"
+#include "club_info_analyzer.hpp"
 
+#include "utils/stream_operators.hpp"
 
 InputData LoadInputData(std::istream &is) {
     int line_number = 0;
@@ -82,7 +80,7 @@ InputData LoadInputData(std::istream &is) {
 
         // check tables
         if (event.GetId() == EventId::IN_CLIENT_START) {
-            auto table_number = event.GetBody<ClientTable>().table_number;
+            auto table_number = event.GetBody<body::ClientTable>().table_number;
             if (table_number < 1 || table_number > res.ntables)  {
                 throw InputDataFormatError(line_number, std::move(line_content));
             }
@@ -93,3 +91,42 @@ InputData LoadInputData(std::istream &is) {
 
     return res;
 };
+
+#if 0
+
+OutputData ProcessInputData(const InputData &data) {
+    OutputData res;
+
+    res.time_start = data.time_open;
+    res.time_end   = data.time_close;
+
+    std::unordered_set<std::string> clients_in_club;
+
+    for (auto &&event : data.events) {
+        // res.events.push_back(event.Clone());
+
+        switch (event.GetId()) {
+            using enum EventId;
+
+        case IN_CLIENT_CAME: {
+            const auto &name = event.GetBody<BodyTypeForId<IN_CLIENT_CAME>>().name;
+            if (clients_in_club.contains(name)) {
+
+            }
+        }
+        case IN_CLIENT_START:
+        case IN_CLIENT_WAIT:
+        case IN_CLIENT_GONE:
+
+        case OUT_CLIENT_GONE:
+        case OUT_CLIENT_START:
+        case OUT_ERROR:
+        case UNKNOWN:
+            assert(false && "ProcessInputData: output or unknown event in a list of input events");
+        }
+    }
+
+    return res;
+}
+
+#endif

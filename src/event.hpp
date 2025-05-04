@@ -11,48 +11,85 @@
 #include "event_id.hpp"
 #include "body.hpp"
 
-class Event;
-
-void Dump(std::ostream &os, const Event &src);
-std::istream &Load(std::istream &os, Event &dest);
-
 namespace internal {
 
-class Serializer {
+class SerializableBody {
 public:
-    Serializer() = default;
+    SerializableBody() = default;
 
     template <typename T>
-    Serializer(const T& obj)
-        : serializable_(std::make_unique<Serializable<T>>(obj))
+    SerializableBody(T &&body)
+        : body_(std::make_unique<Body<T>>(std::forward<T>(body)))
     {}
 
-    void Dump(std::ostream &os) const {
-        if (serializable_) {
-            serializable_->Dump(os);
-        }
+    template <typename T>
+    const T &Get() const {
+        return static_cast<const Body<T> &>(*body_).Get();
     }
+    template <typename T>
+    T &Get() {
+        return static_cast<Body<T> &>(*body_).Get();
+    }
+
+    // FIXME: introduce ClonableUniquePtr
+    SerializableBody(const SerializableBody &other);
+    SerializableBody(SerializableBody &&) = default;
+    SerializableBody &operator =(const SerializableBody &other);
+    SerializableBody &operator =(SerializableBody &&other) = default;
+
+    bool Empty() const;
+    void Dump(std::ostream &os) const;
+
+    bool operator ==(const SerializableBody &other) const;
+    bool operator !=(const SerializableBody &other) const;
 private:
-    struct ISerializable {
+    struct IBody {
         virtual void Dump(std::ostream &os) const = 0;
-        virtual ~ISerializable() = default;
+
+        virtual std::unique_ptr<IBody> Clone() const = 0;
+
+        virtual bool Equal(const IBody &) const = 0;
+        bool operator ==(const IBody &other) const;
+        bool operator !=(const IBody &other) const;
+
+        virtual ~IBody() = default;
     };
 
     template <typename T>
-    class Serializable : public ISerializable {
+    class Body : public IBody {
     public:
-        Serializable(const T& obj)
+        Body(const T& obj)
             : obj_(obj)
+        {}
+        Body(T &&obj)
+            : obj_(std::move(obj))
         {}
 
         void Dump(std::ostream &os) const override {
             ::Dump(os, obj_);
         }
+
+        T &Get() {
+            return obj_;
+        }
+        const T &Get() const {
+            return obj_;
+        }
+
+        std::unique_ptr<IBody> Clone() const override {
+            return std::make_unique<Body>(obj_);
+        }
+        bool Equal(const IBody &other) const override {
+            if (auto *other_ptr = dynamic_cast<const Body *>(&other)) {
+                return obj_ == other_ptr->obj_;
+            }
+            return false;
+        }
     private:
-        const T &obj_;
+        T obj_;
     };
 
-    std::unique_ptr<ISerializable> serializable_;
+    std::unique_ptr<IBody> body_;
 };
 
 } // namespace internal
@@ -60,10 +97,14 @@ private:
 class Event {
 public:
     Event() = default;
+    Event(const Event &) = default;
+    Event(Event &&) = default;
+    Event &operator=(const Event &) = default;
+    Event &operator=(Event &&) = default;
 
     template <EventId Id>
     static Event Create(TimeStamp time, BodyTypeForId<Id> body) {
-        return Event(Id, time, std::make_unique<BodyTypeForId<Id>>(std::move(body)));
+        return Event(Id, time, std::move(body));
     }
 
     EventId GetId() const {
@@ -74,60 +115,33 @@ public:
     }
 
     bool HasBody() const {
-        return static_cast<bool>(body_);
+        return !body_.Empty();
     }
 
-    template <typename BodyType = Body>
-        requires std::is_base_of_v<Body, BodyType>
-    BodyType &GetBody() {
-        return static_cast<BodyType &>(*body_);
-    }
-
-    template <typename BodyType = Body>
-        requires std::is_base_of_v<Body, BodyType>
+    template <typename BodyType>
     const BodyType &GetBody() const {
-        return static_cast<const BodyType &>(*body_);
+        return body_.Get<BodyType>();
+    }
+    template <typename BodyType>
+    BodyType &GetBody() {
+        return body_.Get<BodyType>();
     }
 
-    bool operator ==(const Event &other) const {
-        if (id_ != other.id_) {
-            return false;
-        }
-        if (time_ != other.time_) {
-            return false;
-        }
-        if (HasBody() != other.HasBody()) {
-            return false;
-        }
-        if (!HasBody() && !other.HasBody()) {
-            return true;
-        }
-        if (*body_ != *other.body_) {
-            return false;
-        }
-        return true;        
-    }
-    bool operator !=(const Event &other) const {
-        return !operator ==(other);
-    }
+    bool operator ==(const Event &event) const = default;
 private:
-    template <typename BodyType = Body>
-        requires std::is_base_of_v<Body, BodyType>
-    Event(EventId id, TimeStamp time, std::unique_ptr<BodyType> body)
+    template <typename BodyType>
+    Event(EventId id, TimeStamp time, BodyType &&body)
         : id_(id),
           time_(time),
-          body_(std::move(body)),
-          body_serializer_(static_cast<BodyType &>(*body_))
+          body_(std::forward<BodyType>(body))
     {}
 
-    const internal::Serializer &GetBodySerializer() const {
-        return body_serializer_;
-    }
     friend void Dump(std::ostream &os, const Event &src);
 
     EventId id_;
     TimeStamp time_;
-    std::unique_ptr<Body> body_;
-
-    internal::Serializer body_serializer_;
+    internal::SerializableBody body_;
 };
+
+void Dump(std::ostream &os, const Event &src);
+std::istream &Load(std::istream &os, Event &dest);

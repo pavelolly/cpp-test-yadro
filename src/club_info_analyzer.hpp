@@ -41,3 +41,4 @@ public:
 };
 
 InputData LoadInputData(std::istream &is);
+OutputData ProcessInputData(const InputData &data);

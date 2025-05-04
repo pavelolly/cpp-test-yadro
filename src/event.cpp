@@ -5,6 +5,49 @@
 #include "utils/string.hpp"
 #include "utils/stream_operators.hpp"
 
+namespace internal {
+
+SerializableBody::SerializableBody(const SerializableBody &other)
+    : body_(other.body_->Clone())
+{}
+
+SerializableBody &SerializableBody::operator =(const SerializableBody &other) {
+    body_ = other.body_->Clone();
+    return *this;
+}
+
+bool SerializableBody::Empty() const {
+    return !body_;
+}
+
+void SerializableBody::Dump(std::ostream &os) const {
+    return body_->Dump(os);
+}
+
+bool SerializableBody::operator ==(const SerializableBody &other) const {
+    if (Empty() ^ other.Empty()) {
+        return false;
+    }
+    if (!Empty()) {
+        return *body_ == *other.body_;
+    }
+
+    return true;
+}
+
+bool SerializableBody::operator !=(const SerializableBody &other) const {
+    return !operator ==(other);
+}
+
+bool SerializableBody::IBody::operator ==(const IBody &other) const {
+    return Equal(other);
+}
+bool SerializableBody::IBody::operator !=(const IBody &other) const {
+    return !operator ==(other);
+}
+
+} // namespace internal
+
 bool IsInputEventId(int val) {
     using enum EventId;
     return static_cast<int>(IN_CLIENT_CAME) <= val && val <= static_cast<int>(IN_CLIENT_GONE);
@@ -22,8 +65,8 @@ bool IsEventId(int val) {
 void Dump(std::ostream &os, const Event &src) {
     Dump(os, src.GetTime());
     os << " " << static_cast<int>(src.GetId()) << " ";
-    if (src.GetId() != EventId::UNKNOWN) {
-        src.GetBodySerializer().Dump(os);
+    if (src.HasBody()) {
+        src.body_.Dump(os);
     }
 }
 
@@ -48,45 +91,36 @@ std::istream &Load(std::istream &is, Event &dest) {
         return is;
     }
 
-    Event event;
     switch (static_cast<EventId>(event_id)) {
         using enum EventId;
 
         case IN_CLIENT_CAME: {
-            ClientInfo client_info;
-            is >> client_info;
-            if (!is) {
-                return is;
+            body::ClientInfo client_info;
+            if (is >> client_info) {
+                dest = Event::Create<IN_CLIENT_CAME>(time, client_info);
             }
-            event = Event::Create<IN_CLIENT_CAME>(time, client_info);
-            break;
+            return is;
         }
         case IN_CLIENT_WAIT: {
-            ClientInfo client_info;
-            is >> client_info;
-            if (!is) {
-                return is;
+            body::ClientInfo client_info;
+            if (is >> client_info) {
+                dest = Event::Create<IN_CLIENT_WAIT>(time, client_info);
             }
-            event = Event::Create<IN_CLIENT_WAIT>(time, client_info);
-            break;
+            return is;
         }
         case IN_CLIENT_START: {
-            ClientTable client_table;
-            is >> client_table;
-            if (!is) {
-                return is;
+            body::ClientTable client_table;
+            if (is >> client_table) {
+                dest = Event::Create<IN_CLIENT_START>(time, client_table);
             }
-            event = Event::Create<IN_CLIENT_START>(time, client_table);
-            break;
+            return is;
         }
         case IN_CLIENT_GONE: {
-            ClientInfo client_info;
-            is >> client_info;
-            if (!is) {
-                return is;
+            body::ClientInfo client_info;
+            if (is >> client_info) {
+                dest = Event::Create<IN_CLIENT_GONE>(time, client_info);
             }
-            event = Event::Create<IN_CLIENT_GONE>(time, client_info);
-            break;
+            return is;
         }
         case UNKNOWN:
         case OUT_CLIENT_GONE:
@@ -94,7 +128,4 @@ std::istream &Load(std::istream &is, Event &dest) {
         case OUT_ERROR:
             assert(false && "event_id is not input event");
     }
-
-    dest = std::move(event);
-    return is;
 }

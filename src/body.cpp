@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <regex>
 
-void Dump(std::ostream &os, const ClientInfo &src) {
+void Dump(std::ostream &os, const body::ClientInfo &src) {
     os << src.name;
 }
 
@@ -30,8 +30,8 @@ std::istream &LoadClientName(std::istream &is, std::string &dest) {
 } // namespace
 
 
-std::istream &Load(std::istream &is, ClientInfo &dest) {
-    ClientInfo client_info;
+std::istream &Load(std::istream &is, body::ClientInfo &dest) {
+    body::ClientInfo client_info;
     LoadClientName(is, client_info.name);
     if (!is) {
         return is;
@@ -41,12 +41,12 @@ std::istream &Load(std::istream &is, ClientInfo &dest) {
     return is;
 }
 
-void Dump(std::ostream &os, const ClientTable &src) {
+void Dump(std::ostream &os, const body::ClientTable &src) {
     os << src.name << " " << src.table_number;
 }
 
-std::istream &Load(std::istream &is, ClientTable &dest) {
-    ClientTable client_table;
+std::istream &Load(std::istream &is, body::ClientTable &dest) {
+    body::ClientTable client_table;
     LoadClientName(is, client_table.name);
     if (!is) {
         return is;
@@ -61,6 +61,6 @@ std::istream &Load(std::istream &is, ClientTable &dest) {
     return is;
 }
 
-void Dump(std::ostream &os, const Error &src) {
+void Dump(std::ostream &os, const body::Error &src) {
     os << src.message;
 }

@@ -4,75 +4,34 @@
 #include <string>
 #include <string_view>
 
-struct Body {
-    virtual bool equal(const Body &other) const = 0;
-    
-    bool operator ==(const Body &other) const {
-        return equal(other);
-    }
-    bool operator !=(const Body &other) const {
-        return !operator ==(other);
-    }
+namespace body {
 
-    virtual ~Body() = default;
-};
-
-// TODO: use compiler generated operator ==()... somehow...
-struct ClientInfo : Body {
+struct ClientInfo {
     std::string name;
 
-    ClientInfo() = default;
-    ClientInfo(std::string name)
-        : name(std::move(name))
-    {}
-
-    bool equal(const Body &other) const override {
-        if (auto *p = dynamic_cast<const ClientInfo *>(&other)) {
-            return name == p->name;
-        }
-        return false;
-    }
+    bool operator ==(const ClientInfo &) const = default;
 };
 
-struct ClientTable : Body {
+struct ClientTable {
     std::string name;
     int table_number;
 
-    ClientTable() = default;
-    ClientTable(std::string name, int table_number)
-        : name(std::move(name)), table_number(table_number)
-    {}
-
-    bool equal(const Body &other) const override {
-        if (auto *p = dynamic_cast<const ClientTable *>(&other)) {
-            return name == p->name
-                   && table_number == p->table_number;
-        }
-        return false;
-    }
+    bool operator ==(const ClientTable &) const = default;
 };
 
-struct Error : Body {
+struct Error {
     std::string_view message;
 
-    Error() = default;
-    Error(std::string_view message)
-        : message(std::move(message))
-    {}
-
-    bool equal(const Body &other) const override {
-        if (auto *p = dynamic_cast<const Error *>(&other)) {
-            return message == p->message;
-        }
-        return false;
-    }
+    bool operator ==(const Error &) const = default;
 };
 
-void Dump(std::ostream &os, const ClientInfo &srcload);
-std::istream &Load(std::istream &is, ClientInfo &dest);
+} // namespace body
 
-void Dump(std::ostream &os, const ClientTable &src);
-std::istream &Load(std::istream &is, ClientTable &dest);
+void Dump(std::ostream &os, const body::ClientInfo &srcload);
+std::istream &Load(std::istream &is, body::ClientInfo &dest);
 
-void Dump(std::ostream &os, const Error &src);
+void Dump(std::ostream &os, const body::ClientTable &src);
+std::istream &Load(std::istream &is, body::ClientTable &dest);
+
+void Dump(std::ostream &os, const body::Error &src);
 // no need to load error

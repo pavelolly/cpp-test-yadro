@@ -17,31 +17,31 @@ TEST(Events, Creation) {
     
     TimeStamp time(12, 34);
 
-    auto ev = Event::Create<IN_CLIENT_CAME>(time, ClientInfo("client1"));
+    auto ev = Event::Create<IN_CLIENT_CAME>(time, body::ClientInfo("client1"));
     DumpAndCompare(ev, "12:34 1 client1");
 
-    ev = Event::Create<IN_CLIENT_START>(time, ClientTable("client2", 12));
+    ev = Event::Create<IN_CLIENT_START>(time, body::ClientTable("client2", 12));
     DumpAndCompare(ev, "12:34 2 client2 12");
 
     time = TimeStamp(2, 35);
 
-    ev = Event::Create<IN_CLIENT_WAIT>(time, ClientInfo("client3"));
+    ev = Event::Create<IN_CLIENT_WAIT>(time, body::ClientInfo("client3"));
     DumpAndCompare(ev, "02:35 3 client3");
 
-    ev = Event::Create<IN_CLIENT_GONE>(time, ClientInfo("client3"));
+    ev = Event::Create<IN_CLIENT_GONE>(time, body::ClientInfo("client3"));
     DumpAndCompare(ev, "02:35 4 client3");
 
     time = TimeStamp(23, 1);
 
-    ev = Event::Create<OUT_CLIENT_GONE>(time, ClientInfo("client1"));
+    ev = Event::Create<OUT_CLIENT_GONE>(time, body::ClientInfo("client1"));
     DumpAndCompare(ev, "23:01 11 client1");
 
-    ev = Event::Create<OUT_CLIENT_START>(time, ClientTable("client2", 14));
+    ev = Event::Create<OUT_CLIENT_START>(time, body::ClientTable("client2", 14));
     DumpAndCompare(ev, "23:01 12 client2 14");
 
     time = TimeStamp(2, 2);
 
-    ev = Event::Create<OUT_ERROR>(time, Error("message"));
+    ev = Event::Create<OUT_ERROR>(time, body::Error("message"));
     DumpAndCompare(ev, "02:02 13 message");
 
     std::cout << "Here to check if standart operator << still works " << 69420 << "\n";
@@ -109,31 +109,6 @@ TEST(Events, EventIds) {
                 break;
         }
     }
-}
-
-TEST(Events, PolymorphicCompare) {
-    auto client_info  = ClientInfo("client");
-    auto client_table = ClientTable("client", 1);
-    auto error        = Error("error");
-
-    EXPECT_EQ(client_info, client_info);
-    EXPECT_EQ(client_info, static_cast<Body &>(client_info));
-
-    EXPECT_EQ(client_table, client_table);
-    EXPECT_EQ(client_table, static_cast<Body &>(client_table));
-
-    EXPECT_EQ(static_cast<Body &>(error), error);
-    EXPECT_EQ(static_cast<Body &>(error), static_cast<Body &>(error));
-
-    EXPECT_NE(client_info, client_table);
-    EXPECT_NE(client_info, error);
-    EXPECT_NE(client_info, static_cast<Body &>(client_table));
-    EXPECT_NE(client_info, static_cast<Body &>(error));
-
-    EXPECT_NE(static_cast<Body &>(client_table), client_info);
-    EXPECT_NE(static_cast<Body &>(client_table), error);
-    EXPECT_NE(static_cast<Body &>(client_table), static_cast<Body &>(client_info));
-    EXPECT_NE(static_cast<Body &>(client_table), static_cast<Body &>(error));
 }
 
 int main(int argc, char** argv) {
