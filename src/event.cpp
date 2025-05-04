@@ -24,28 +24,6 @@ void SerializableBody::Dump(std::ostream &os) const {
     return body_->Dump(os);
 }
 
-bool SerializableBody::operator ==(const SerializableBody &other) const {
-    if (Empty() ^ other.Empty()) {
-        return false;
-    }
-    if (!Empty()) {
-        return *body_ == *other.body_;
-    }
-
-    return true;
-}
-
-bool SerializableBody::operator !=(const SerializableBody &other) const {
-    return !operator ==(other);
-}
-
-bool SerializableBody::IBody::operator ==(const IBody &other) const {
-    return Equal(other);
-}
-bool SerializableBody::IBody::operator !=(const IBody &other) const {
-    return !operator ==(other);
-}
-
 } // namespace internal
 
 bool IsInputEventId(int val) {

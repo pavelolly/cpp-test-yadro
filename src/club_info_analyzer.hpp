@@ -13,8 +13,6 @@ struct InputData {
     TimeStamp time_close;
     int cost_per_hour;
     std::vector<Event> events;
-
-    bool operator ==(const InputData &) const = default;
 };
 
 struct TableInfo {

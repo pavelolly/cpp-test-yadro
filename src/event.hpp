@@ -39,18 +39,11 @@ public:
 
     bool Empty() const;
     void Dump(std::ostream &os) const;
-
-    bool operator ==(const SerializableBody &other) const;
-    bool operator !=(const SerializableBody &other) const;
 private:
     struct IBody {
         virtual void Dump(std::ostream &os) const = 0;
 
         virtual std::unique_ptr<IBody> Clone() const = 0;
-
-        virtual bool Equal(const IBody &) const = 0;
-        bool operator ==(const IBody &other) const;
-        bool operator !=(const IBody &other) const;
 
         virtual ~IBody() = default;
     };
@@ -78,12 +71,6 @@ private:
 
         std::unique_ptr<IBody> Clone() const override {
             return std::make_unique<Body>(obj_);
-        }
-        bool Equal(const IBody &other) const override {
-            if (auto *other_ptr = dynamic_cast<const Body *>(&other)) {
-                return obj_ == other_ptr->obj_;
-            }
-            return false;
         }
     private:
         T obj_;
@@ -126,8 +113,6 @@ public:
     BodyType &GetBody() {
         return body_.Get<BodyType>();
     }
-
-    bool operator ==(const Event &event) const = default;
 private:
     template <typename BodyType>
     Event(EventId id, TimeStamp time, BodyType &&body)

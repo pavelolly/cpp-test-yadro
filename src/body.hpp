@@ -8,21 +8,15 @@ namespace body {
 
 struct ClientInfo {
     std::string name;
-
-    bool operator ==(const ClientInfo &) const = default;
 };
 
 struct ClientTable {
     std::string name;
     int table_number;
-
-    bool operator ==(const ClientTable &) const = default;
 };
 
 struct Error {
     std::string_view message;
-
-    bool operator ==(const Error &) const = default;
 };
 
 } // namespace body
