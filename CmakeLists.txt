@@ -14,12 +14,12 @@ function(enable_warnings target)
 endfunction()
 
 add_subdirectory(src)
+add_subdirectory(tests)
 
-option(BUILD_UNIT_TESTS "Build unit-tests" ON)
+option(BUILD_UNIT_TESTS "Build unit-tests" OFF)
 
 if (BUILD_UNIT_TESTS)
     enable_testing()
     find_package(GTest REQUIRED)
-    add_subdirectory(tests)
     add_subdirectory(tests/unit-tests)
 endif()
