@@ -72,14 +72,20 @@ void GenerateRandomEvents(InputData &data, int nevents) {
         }
 
         // otherwise pick somebody in the club and generete event for them
-        std::uniform_int_distribution<> rand_id(
-            static_cast<int>(EventId::IN_CLIENT_START),
-            static_cast<int>(EventId::IN_CLIENT_GONE)
-        );
         std::uniform_int_distribution<> rand(0, clients_in_club.size() - 1);
 
-        return { static_cast<EventId>(rand_id(gen)),
-                 *std::next(clients_in_club.begin(), rand(gen)) };
+        EventId id;
+        if (Chance(0.5)) {
+            id = EventId::IN_CLIENT_START;
+        } else {
+            std::uniform_int_distribution<> rand_id(
+                static_cast<int>(EventId::IN_CLIENT_WAIT),
+                static_cast<int>(EventId::IN_CLIENT_GONE)
+            );
+            id = static_cast<EventId>(rand_id(gen));
+        }
+
+        return { id, *std::next(clients_in_club.begin(), rand(gen)) };
     };
 
     std::vector<Event> events;
@@ -120,10 +126,10 @@ void GenerateRandomEvents(InputData &data, int nevents) {
 
 int main() {
     InputData data = {
-        5, TimeStamp(8, 0), TimeStamp(22, 0), 100, {}
+        3, TimeStamp(10, 0), TimeStamp(21, 0), 100, {}
     };
 
-    GenerateRandomEvents(data, 15);
+    GenerateRandomEvents(data, 50);
 
     for (auto &event : data.events) {
         std::cout << event << "\n";
