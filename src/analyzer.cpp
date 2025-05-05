@@ -29,9 +29,8 @@ InputData LoadInputData(std::istream &is) {
     };
 
     auto IsEmpty = [](std::istream &is) {
-        char dummy;
-        is >> dummy;
-        return !is;
+        std::istream::sentry s(is);
+        return !s || is.peek() == std::char_traits<char>::eof();
     };
 
     // line 1: ntables;
