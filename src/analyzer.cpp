@@ -127,7 +127,7 @@ OutputData ProcessInputData(const InputData &data) {
             res.AddEvent<EventId::OUT_ERROR>(time, { error::YOU_SHALL_NOT_PASS });
             return;
         } 
-        if (time < data.time_open || time > data.time_close) {
+        if (time < data.time_open || time >= data.time_close) {
             res.AddEvent<EventId::OUT_ERROR>(time, { error::NOT_OPEN_YET });
             return;
         }
@@ -150,7 +150,7 @@ OutputData ProcessInputData(const InputData &data) {
     };
 
     auto ClientStarts = [&](TimeStamp time, std::string_view name, int table) {
-        if (!clients_in_club.contains(name)) {
+        if (!clients_in_club.contains(name) || time >= data.time_close) {
             res.AddEvent<EventId::OUT_ERROR>(time, { error::CLIENT_UNKNOWN });
             return;
         }
@@ -173,7 +173,7 @@ OutputData ProcessInputData(const InputData &data) {
 
     auto ClientLeaves = [&](TimeStamp time, std::string_view name) {
         auto it = clients_in_club.find(name);
-        if (it == clients_in_club.end()) {
+        if (it == clients_in_club.end() || time >= data.time_close) {
             res.AddEvent<EventId::OUT_ERROR>(time, { error::CLIENT_UNKNOWN });
             return;
         }
@@ -196,7 +196,7 @@ OutputData ProcessInputData(const InputData &data) {
     };
 
     auto ClientWaits = [&](TimeStamp time, std::string_view name) {
-        if (!clients_in_club.contains(name)) {
+        if (!clients_in_club.contains(name) || time >= data.time_close) {
             res.AddEvent<EventId::OUT_ERROR>(time, { error::CLIENT_UNKNOWN });
             return;
         }

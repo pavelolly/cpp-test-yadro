@@ -139,9 +139,11 @@ TEST(ProcessInputData, Events) {
         "20:49 1 ashley\n"
         "21:23 4 garrus\n"
         "22:07 4 miranda\n"
+        "22:07 13 ClientUnknown\n"
         "22:00 11 ashley\n"
         "22:00 11 kelly\n"
         "22:00 11 liara\n"
+        "22:00 11 miranda\n"
         "22:00 11 samantha\n"
     );
 
