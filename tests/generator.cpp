@@ -1,5 +1,5 @@
 #include <iostream>
-#include <array>
+#include <unordered_set>
 #include <random>
 #include <cassert>
 
@@ -31,17 +31,17 @@ bool Chance(float prob) {
     return rand(gen) < prob;
 }
 
+struct CommonBody {
+    EventId id;
+    std::string_view client_name;
+};
+
 // input data must have well defined metadata (ntables, timestamps, ...)
 void GenerateRandomEvents(InputData &data, int nevents) {
-    std::vector<Event> events;
-
-    std::uniform_int_distribution<> rand_id(
-        static_cast<int>(EventId::IN_CLIENT_CAME),
-        static_cast<int>(EventId::IN_CLIENT_GONE)
-    );
-
     std::uniform_int_distribution<> rand_client(0, std::size(CLIENT_NAMES) - 1);
     std::uniform_int_distribution<> rand_table(1, data.ntables);
+    
+    std::unordered_set<std::string_view> clients_in_club;
 
     // TODO: check edge cases when time is less 0:0 or bigger 24:00
     TimeStamp time = data.time_open - TimeStamp(1, 0);
@@ -50,9 +50,42 @@ void GenerateRandomEvents(InputData &data, int nevents) {
 
     std::uniform_int_distribution<> rand_minutes(-variance.count(), variance.count());
 
+    auto GetIdAndName = [&]() -> CommonBody {
+        // 10% chance to generate completely random event
+        if (Chance(0.1)) {
+            std::uniform_int_distribution<> rand_id(
+                static_cast<int>(EventId::IN_CLIENT_CAME),
+                static_cast<int>(EventId::IN_CLIENT_GONE)
+            );
+
+            return { static_cast<EventId>(rand_id(gen)), CLIENT_NAMES[rand_client(gen)] };
+        }
+
+        // if nobody is in the club or with 25% chance someone must come
+        if (clients_in_club.empty() || Chance(0.25)) {
+            auto client = CLIENT_NAMES[rand_client(gen)];
+            if (time >= data.time_open) {
+                clients_in_club.insert(client);
+            }
+
+            return { EventId::IN_CLIENT_CAME, client };
+        }
+
+        // otherwise pick somebody in the club and generete event for them
+        std::uniform_int_distribution<> rand_id(
+            static_cast<int>(EventId::IN_CLIENT_START),
+            static_cast<int>(EventId::IN_CLIENT_GONE)
+        );
+        std::uniform_int_distribution<> rand(0, clients_in_club.size() - 1);
+
+        return { static_cast<EventId>(rand_id(gen)),
+                 *std::next(clients_in_club.begin(), rand(gen)) };
+    };
+
+    std::vector<Event> events;
+
     for (int i = 0; i < nevents; ++i) {
-        EventId id = static_cast<EventId>(rand_id(gen));
-        std::string_view client = CLIENT_NAMES[rand_client(gen)];
+        auto [id, client] = GetIdAndName();
 
         switch (id) {
             using enum EventId;
@@ -61,8 +94,6 @@ void GenerateRandomEvents(InputData &data, int nevents) {
                 events.push_back(Event::Create<IN_CLIENT_CAME>(time, { std::string(client) } ));
                 break;
             case IN_CLIENT_START: {
-                // table is invalid with 15% chance
-                // int table = Chance(0.85) ? rand_table(gen) : rand_table(gen) + data.ntables;
                 events.push_back(Event::Create<IN_CLIENT_START>(time, { std::string(client), rand_table(gen) }));
                 break;
             }
@@ -71,6 +102,7 @@ void GenerateRandomEvents(InputData &data, int nevents) {
                 break;
             case IN_CLIENT_GONE:
                 events.push_back(Event::Create<IN_CLIENT_GONE>(time, { std::string(client) } ));
+                clients_in_club.erase(client);
                 break;
             
             case OUT_CLIENT_GONE:
@@ -88,10 +120,10 @@ void GenerateRandomEvents(InputData &data, int nevents) {
 
 int main() {
     InputData data = {
-        10, TimeStamp(8, 0), TimeStamp(22, 0), 100, {}
+        5, TimeStamp(8, 0), TimeStamp(22, 0), 100, {}
     };
 
-    GenerateRandomEvents(data, 25);
+    GenerateRandomEvents(data, 15);
 
     for (auto &event : data.events) {
         std::cout << event << "\n";
