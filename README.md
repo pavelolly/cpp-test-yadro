@@ -4,7 +4,7 @@ This project exists as part of a test assignment for an internship.
 
 The program reads files in a specific format and outputs some processed information.
 
-To learn more about the formats visit `tests` folder with `*.dat` and `*ans` files
+To learn more about the formats visit `tests` folder with `*.dat` and `*.ans` files
 
 # Build
 
@@ -30,6 +30,15 @@ You might also want to help `cmake` find your `GTest`:
 ```bash
 cmake .. -DBUILD_UNIT_TESTS=ON -DCMAKE_PREFIX_PATH="path/to/gtest"
 ```
+
+You can simply run tests with `ctest` after building
+
+This will install an executable and test files with input and output data for the program
+
+```bash
+cmake --install .
+```
+
 
 # Usage
 

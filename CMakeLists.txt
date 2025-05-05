@@ -23,3 +23,8 @@ if (BUILD_UNIT_TESTS)
     find_package(GTest REQUIRED)
     add_subdirectory(tests/unit-tests)
 endif()
+
+install(TARGETS ${PROJECT_NAME} DESTINATION .)
+
+file(GLOB TEST_FILES "tests/*.dat" "tests/*.ans")
+install(FILES ${TEST_FILES} DESTINATION .)
