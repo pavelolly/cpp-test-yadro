@@ -201,7 +201,12 @@ OutputData ProcessInputData(const InputData &data) {
             return;
         }
 
-        if (std::any_of(busy_tables.begin() + 1, busy_tables.end(), [](std::string_view name) { return name.empty(); })) {
+        if (std::any_of(busy_tables.begin() + 1,
+                        busy_tables.end(),
+                        [](std::string_view name) { return name.empty(); }) ||
+            clients_in_club[name] != 0
+        )
+        {
             res.AddEvent<EventId::OUT_ERROR>(time, { error::CAN_WAIT_NO_LONGER });
             return;
         }
