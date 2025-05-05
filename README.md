@@ -17,6 +17,8 @@ cmake ..
 cmake --build .
 ```
 
+The program was tested to build with GCC/Clang on Linux and MSVC on Windows.
+
 This project uses `GTest` for unit-testing
 
 By default building of unit tests is off. Enable it using the following command
