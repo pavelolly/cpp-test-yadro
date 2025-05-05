@@ -135,6 +135,20 @@ OutputData ProcessInputData(const InputData &data) {
         clients_in_club.insert({name, 0});
     };
 
+    auto CountTimeAndMoney = [&] (TimeStamp time, int table) {
+        if (acquire_timestamps[table] == TimeStamp::Invalid()) {
+            return;
+        }
+            
+        TimeStamp time_used = time - acquire_timestamps[table];
+        int hours_used = time_used.GetMinutes() == 0 ? time_used.GetHours() : time_used.GetHours() + 1;
+
+        res.table_infos[table].earnings  += hours_used * data.cost_per_hour;
+        res.table_infos[table].time_used += time_used;
+
+        acquire_timestamps[table] = TimeStamp::Invalid();
+    };
+
     auto ClientStarts = [&](TimeStamp time, std::string_view name, int table) {
         if (!clients_in_club.contains(name)) {
             res.AddEvent<EventId::OUT_ERROR>(time, { error::CLIENT_UNKNOWN });
@@ -146,22 +160,15 @@ OutputData ProcessInputData(const InputData &data) {
             return;
         }
 
+        if (clients_in_club[name] != 0) {
+            busy_tables[clients_in_club[name]] = std::string_view{};
+            CountTimeAndMoney(time, clients_in_club[name]);
+        }
+
         clients_in_club[name] = table;
         busy_tables[table] = name;
         acquire_timestamps[table] = time;
         return;
-    };
-
-    auto CountTimeAndMoney = [&] (TimeStamp time, int table) {
-        if (acquire_timestamps[table] == TimeStamp::Invalid()) {
-            return;
-        }
-            
-        TimeStamp time_used = time - acquire_timestamps[table];
-        int hours_used = time_used.GetMinutes() == 0 ? time_used.GetHours() : time_used.GetHours() + 1;
-
-        res.table_infos[table].earnings  += hours_used * data.cost_per_hour;
-        res.table_infos[table].time_used += time_used;
     };
 
     auto ClientLeaves = [&](TimeStamp time, std::string_view name) {
@@ -176,7 +183,6 @@ OutputData ProcessInputData(const InputData &data) {
 
             assert(acquire_timestamps[table] != TimeStamp::Invalid());
             CountTimeAndMoney(time, table);
-            acquire_timestamps[table] = TimeStamp::Invalid();
             
             if (!clients_queue.empty()) {
                 auto queued = clients_queue.back();
