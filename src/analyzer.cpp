@@ -2,7 +2,7 @@
 #include <iterator>
 #include <string>
 #include <algorithm>
-#include <queue>
+#include <deque>
 #include <cassert>
 
 #include "analyzer.hpp"
@@ -118,7 +118,7 @@ OutputData ProcessInputData(const InputData &data) {
     std::map<std::string_view, int> clients_in_club;
     // busy_tables[0] is dummy for convinience (table_numbers in events are in range 1..ntables)
     std::vector<std::string_view> busy_tables(data.ntables + 1);
-    std::queue<std::string_view> clients_queue;
+    std::deque<std::string_view> clients_queue;
 
     std::vector<TimeStamp> acquire_timestamps(data.ntables + 1, TimeStamp::Invalid());
 
@@ -185,8 +185,8 @@ OutputData ProcessInputData(const InputData &data) {
             CountTimeAndMoney(time, table);
             
             if (!clients_queue.empty()) {
-                auto queued = clients_queue.back();
-                clients_queue.pop();
+                auto queued = clients_queue.front();
+                clients_queue.pop_front();
 
                 res.AddEvent<EventId::OUT_CLIENT_START>(time, { std::string(queued), table });
                 ClientStarts(time, queued, table);
@@ -217,7 +217,9 @@ OutputData ProcessInputData(const InputData &data) {
             return;
         }
 
-        clients_queue.push(name);
+        if (std::find(clients_queue.begin(), clients_queue.end(), name) == clients_queue.end()) {
+            clients_queue.push_back(name);
+        }
     };
     
     std::for_each(data.events.begin(), data.events.end(), [&](const Event &event) {
