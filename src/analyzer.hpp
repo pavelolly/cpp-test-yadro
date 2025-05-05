@@ -33,8 +33,9 @@ struct OutputData {
     }
 };
 
+#if 0
+
 // TODO: better error reports
-// TODO: report only line content (requirement of task)
 class InputDataFormatError : public std::runtime_error {
 public:
     InputDataFormatError(int line_number)
@@ -44,6 +45,20 @@ public:
         : std::runtime_error(std::format("FormatError: Line {}: '{}'", line_number, std::move(line_content)))
     {}
 };
+
+#else
+
+class InputDataFormatError : public std::runtime_error {
+public:
+    InputDataFormatError(int)
+        : std::runtime_error("")
+    {}
+    InputDataFormatError(int, std::string line_content)
+        : std::runtime_error(std::move(line_content))
+    {}
+};
+
+#endif // #if 0
 
 InputData LoadInputData(std::istream &is);
 OutputData ProcessInputData(const InputData &data);
