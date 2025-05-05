@@ -27,4 +27,4 @@ endif()
 install(TARGETS ${PROJECT_NAME} DESTINATION .)
 
 file(GLOB TEST_FILES "tests/*.dat" "tests/*.ans")
-install(FILES ${TEST_FILES} DESTINATION .)
+install(FILES ${TEST_FILES} DESTINATION data/)

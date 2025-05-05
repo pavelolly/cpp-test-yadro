@@ -45,3 +45,11 @@ cmake --install .
 ```bash
 cpp-test-yadro <file.txt>
 ```
+
+You can test program with files from test folder. For Example
+
+```bash
+cpp-test-yadro data/001.dat | diff -b - data/001.ans
+```
+
+If output is clean then output of the program matches with the `.ans` file
