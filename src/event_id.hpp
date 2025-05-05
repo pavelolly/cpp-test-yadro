@@ -16,9 +16,17 @@ enum class EventId {
     OUT_ERROR
 };
 
-bool IsInputEventId(int val);
-bool IsOutputEventId(int val);
-bool IsEventId(int val);
+inline bool IsInputEventId(int val) {
+    using enum EventId;
+    return static_cast<int>(IN_CLIENT_CAME) <= val && val <= static_cast<int>(IN_CLIENT_GONE);
+}
+inline bool IsOutputEventId(int val) {
+    using enum EventId;
+    return static_cast<int>(OUT_CLIENT_GONE) <= val && val <= static_cast<int>(OUT_ERROR);
+}
+inline bool IsEventId(int val) {
+    return IsInputEventId(val) || IsOutputEventId(val) || val == static_cast<int>(EventId::UNKNOWN);
+}
 
 template <EventId Id> struct BodyTypeFor {};
 template <> struct BodyTypeFor<EventId::IN_CLIENT_CAME>   { using type = body::ClientInfo; };

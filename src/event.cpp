@@ -26,20 +26,6 @@ void SerializableBody::Dump(std::ostream &os) const {
 
 } // namespace internal
 
-bool IsInputEventId(int val) {
-    using enum EventId;
-    return static_cast<int>(IN_CLIENT_CAME) <= val && val <= static_cast<int>(IN_CLIENT_GONE);
-}
-
-bool IsOutputEventId(int val) {
-    using enum EventId;
-    return static_cast<int>(OUT_CLIENT_GONE) <= val && val <= static_cast<int>(OUT_ERROR);
-}
-
-bool IsEventId(int val) {
-    return IsInputEventId(val) || IsOutputEventId(val) || val == static_cast<int>(EventId::UNKNOWN);
-}
-
 void Dump(std::ostream &os, const Event &src) {
     Dump(os, src.GetTime());
     os << " " << static_cast<int>(src.GetId()) << " ";
