@@ -14,7 +14,7 @@ function(enable_warnings target)
 endfunction()
 
 add_subdirectory(src)
-add_subdirectory(tests)
+add_subdirectory(tests/generator)
 
 option(BUILD_UNIT_TESTS "Build unit-tests" OFF)
 
