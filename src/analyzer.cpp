@@ -190,6 +190,11 @@ OutputData ProcessInputData(const InputData &data) {
     };
 
     auto ClientWaits = [&](TimeStamp time, std::string_view name) {
+        if (!clients_in_club.contains(name)) {
+            res.AddEvent<EventId::OUT_ERROR>(time, { error::CLIENT_UNKNOWN });
+            return;
+        }
+
         if (std::any_of(busy_tables.begin() + 1, busy_tables.end(), [](std::string_view name) { return name.empty(); })) {
             res.AddEvent<EventId::OUT_ERROR>(time, { error::CAN_WAIT_NO_LONGER });
             return;
