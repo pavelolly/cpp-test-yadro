@@ -143,8 +143,6 @@ OutputData ProcessInputData(const InputData &data) {
         TimeStamp time_used = time - acquire_timestamps[table];
         int hours_used = time_used.GetMinutes() == 0 ? time_used.GetHours() : time_used.GetHours() + 1;
 
-        std::cout << "time: " << time << " table: " << table << " used: " << time_used << " money: " <<  hours_used * data.cost_per_hour << "\n";
-
         res.table_infos[table].earnings  += hours_used * data.cost_per_hour;
         res.table_infos[table].time_used += time_used;
 
