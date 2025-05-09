@@ -68,7 +68,7 @@ TEST(StringUtils, SplitMaxSplit) {
 #define SplitAndCompare(str, maxsplit, expected) \
     do {                  \
         splitted.clear(); \
-        Split((str), (maxsplit), std::back_inserter(splitted));  \
+        Split((str), std::back_inserter(splitted), (maxsplit));  \
         EXPECT_EQ(splitted, std::vector<std::string>(expected)); \
     } while(0)
 
@@ -92,7 +92,7 @@ TEST(StringUtils, SplitDelim) {
 #define SplitAndCompare(str, delim, expected) \
     do {                  \
         splitted.clear(); \
-        Split((str), (delim), std::back_inserter(splitted));  \
+        Split((str), std::back_inserter(splitted), (delim));     \
         EXPECT_EQ(splitted, std::vector<std::string>(expected)); \
     } while(0)
 

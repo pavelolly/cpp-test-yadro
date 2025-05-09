@@ -298,7 +298,7 @@ TEST(Load, InputData_Success) {
     do { \
         std::vector<std::string> lines;     \
         lines.reserve(10);                  \
-        Split((src), '\n', std::back_inserter(lines));                \
+        Split((src), std::back_inserter(lines), '\n');                \
         InputDataFormatError expected_error((line), lines[line - 1]); \
         try { \
             std::istringstream ss(src);         \
