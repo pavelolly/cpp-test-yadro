@@ -254,7 +254,7 @@ OutputData ProcessInputData(const InputData &data) {
             return;
         }
         case IN_CLIENT_GONE: {
-            const auto &[name] = event.GetBody<BodyTypeForId<IN_CLIENT_WAIT>>();
+            const auto &[name] = event.GetBody<BodyTypeForId<IN_CLIENT_GONE>>();
 
             ClientLeaves(time, name);
             return;
