@@ -25,6 +25,7 @@ struct OutputData {
     TimeStamp time_end;
     std::vector<Event> events;
     // need table numbers in order
+    // TODO: rewrite with std::vector
     std::map<int, TableInfo> table_infos;
 
     template <EventId Id>
