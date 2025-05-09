@@ -26,8 +26,8 @@ std::string_view CLIENT_NAMES[] {
 std::mt19937 gen(std::random_device{}());
 
 // true with probability
-bool Chance(float prob) {
-    static std::uniform_real_distribution<float> rand;
+bool Chance(double prob) {
+    static std::uniform_real_distribution rand;
     return rand(gen) < prob;
 }
 
@@ -72,7 +72,7 @@ void GenerateRandomEvents(InputData &data, int nevents) {
         }
 
         // otherwise pick somebody in the club and generete event for them
-        std::uniform_int_distribution<> rand(0, clients_in_club.size() - 1);
+        std::uniform_int_distribution<> rand(0, (int)clients_in_club.size() - 1);
 
         EventId id;
         if (Chance(0.4)) {
