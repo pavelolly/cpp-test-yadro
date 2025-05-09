@@ -38,8 +38,8 @@ struct CommonBody {
 
 // input data must have well defined metadata (ntables, timestamps, ...)
 void GenerateRandomEvents(InputData &data, int nevents) {
-    std::uniform_int_distribution<> rand_client(0, std::size(CLIENT_NAMES) - 1);
-    std::uniform_int_distribution<> rand_table(1, data.ntables);
+    std::uniform_int_distribution rand_client(0, (int)std::size(CLIENT_NAMES) - 1);
+    std::uniform_int_distribution rand_table(1, data.ntables);
     
     std::unordered_set<std::string_view> clients_in_club;
 
@@ -48,12 +48,12 @@ void GenerateRandomEvents(InputData &data, int nevents) {
     TimeStamp step = (data.time_close - data.time_open + TimeStamp(2, 0)) / nevents;
     std::chrono::minutes variance = step / 4;
 
-    std::uniform_int_distribution<> rand_minutes(-variance.count(), variance.count());
+    std::uniform_int_distribution rand_minutes(-variance.count(), variance.count());
 
     auto GetIdAndName = [&]() -> CommonBody {
         // 10% chance to generate completely random event
         if (Chance(0.1)) {
-            std::uniform_int_distribution<> rand_id(
+            std::uniform_int_distribution rand_id(
                 static_cast<int>(EventId::IN_CLIENT_CAME),
                 static_cast<int>(EventId::IN_CLIENT_GONE)
             );
@@ -72,13 +72,13 @@ void GenerateRandomEvents(InputData &data, int nevents) {
         }
 
         // otherwise pick somebody in the club and generete event for them
-        std::uniform_int_distribution<> rand(0, (int)clients_in_club.size() - 1);
+        std::uniform_int_distribution rand(0, (int)clients_in_club.size() - 1);
 
         EventId id;
         if (Chance(0.4)) {
             id = EventId::IN_CLIENT_START;
         } else {
-            std::uniform_int_distribution<> rand_id(
+            std::uniform_int_distribution rand_id(
                 static_cast<int>(EventId::IN_CLIENT_WAIT),
                 static_cast<int>(EventId::IN_CLIENT_GONE)
             );
