@@ -51,8 +51,3 @@ bool IsDigit(const String &src) {
 }
 
 bool IsDigit(const char *src);
-
-template <std::size_t N>
-bool IsDigit(const char (&src)[N]) {
-    return N >= 1 && std::all_of(src, src + N, [](char c) { return std::isdigit(c); });
-}

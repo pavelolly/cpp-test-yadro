@@ -5,6 +5,7 @@
 #include "utils/string.hpp"
 
 TEST(StringUtils, IsDigit) {
+    EXPECT_TRUE(IsDigit("1"));
     EXPECT_TRUE(IsDigit("123"));
     EXPECT_TRUE(IsDigit("08475"));
     EXPECT_FALSE(IsDigit(""));
@@ -12,6 +13,7 @@ TEST(StringUtils, IsDigit) {
     EXPECT_FALSE(IsDigit("0x18"));
     EXPECT_FALSE(IsDigit("0.125"));
 
+    EXPECT_TRUE(IsDigit((const char *)"1"));
     EXPECT_TRUE(IsDigit((const char *)"123"));
     EXPECT_TRUE(IsDigit((const char *)"08475"));
     EXPECT_FALSE(IsDigit((const char *)""));
@@ -22,6 +24,7 @@ TEST(StringUtils, IsDigit) {
     using namespace std::literals::string_literals;
     using namespace std::literals::string_view_literals;
 
+    EXPECT_TRUE(IsDigit("1"s));
     EXPECT_TRUE(IsDigit("123"s));
     EXPECT_TRUE(IsDigit("08475"s));
     EXPECT_FALSE(IsDigit(""s));
@@ -29,12 +32,16 @@ TEST(StringUtils, IsDigit) {
     EXPECT_FALSE(IsDigit("0x18"s));
     EXPECT_FALSE(IsDigit("0.125"s));
 
+    EXPECT_TRUE(IsDigit("1"sv));
     EXPECT_TRUE(IsDigit("123"sv));
     EXPECT_TRUE(IsDigit("08475"sv));
     EXPECT_FALSE(IsDigit(""sv));
     EXPECT_FALSE(IsDigit("-123"sv));
     EXPECT_FALSE(IsDigit("0x18"sv));
     EXPECT_FALSE(IsDigit("0.125"sv));
+
+#undef ExpectIsDigitArray
+#undef ExpectIsNotDigitArray
 }
 
 #define I(...) { __VA_ARGS__ }
