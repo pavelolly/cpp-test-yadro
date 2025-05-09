@@ -29,13 +29,18 @@ inline bool IsEventId(int val) {
 }
 
 template <EventId Id> struct BodyTypeFor {};
-template <> struct BodyTypeFor<EventId::IN_CLIENT_CAME>   { using type = body::ClientInfo; };
-template <> struct BodyTypeFor<EventId::IN_CLIENT_GONE>   { using type = body::ClientInfo; };
-template <> struct BodyTypeFor<EventId::IN_CLIENT_START>  { using type = body::ClientTable; };
-template <> struct BodyTypeFor<EventId::IN_CLIENT_WAIT>   { using type = body::ClientInfo; };
-template <> struct BodyTypeFor<EventId::OUT_CLIENT_GONE>  { using type = body::ClientInfo; };
-template <> struct BodyTypeFor<EventId::OUT_CLIENT_START> { using type = body::ClientTable; };
-template <> struct BodyTypeFor<EventId::OUT_ERROR>        { using type = body::Error; };
+
+#define SET_BODY_TYPE(id, body_type) template <> struct BodyTypeFor<EventId::id> { using type = body_type; }
+
+SET_BODY_TYPE(IN_CLIENT_CAME,   body::ClientInfo);
+SET_BODY_TYPE(IN_CLIENT_GONE,   body::ClientInfo);
+SET_BODY_TYPE(IN_CLIENT_START,  body::ClientTable);
+SET_BODY_TYPE(IN_CLIENT_WAIT,   body::ClientInfo);
+SET_BODY_TYPE(OUT_CLIENT_GONE,  body::ClientInfo);
+SET_BODY_TYPE(OUT_CLIENT_START, body::ClientTable);
+SET_BODY_TYPE(OUT_ERROR,        body::Error);
+
+#undef SET_BODY_TYPE
 
 template <EventId Id>
 using BodyTypeForId = typename BodyTypeFor<Id>::type;
