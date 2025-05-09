@@ -75,7 +75,7 @@ void GenerateRandomEvents(InputData &data, int nevents) {
         std::uniform_int_distribution<> rand(0, clients_in_club.size() - 1);
 
         EventId id;
-        if (Chance(0.5)) {
+        if (Chance(0.4)) {
             id = EventId::IN_CLIENT_START;
         } else {
             std::uniform_int_distribution<> rand_id(
