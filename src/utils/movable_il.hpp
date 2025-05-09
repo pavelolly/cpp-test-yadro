@@ -5,21 +5,21 @@
 
 /*
     stolen from:
-    https://stackoverflow.com/questions/46737054/vectorunique-ptra-using-initialization-list?utm_source=chatgpt.com
+    https://stackoverflow.com/questions/46737054/vectorunique-ptra-using-initialization-list
 */
 
 namespace {
 
 template<typename T>
-struct movable_il {
+struct MovableIlItem {
     mutable T t;
     operator T() const&& { return std::move(t); }
-    movable_il(T&& in): t(std::move(in)) {}
+    MovableIlItem(T&& t): t(std::move(t)) {}
 };
 
 } // namespace
 
-template<class Container>
-Container FromIl(std::initializer_list<movable_il<typename Container::value_type>> il) {
+template <typename Container>
+Container FromIl(std::initializer_list<MovableIlItem<typename Container::value_type>> il) {
   return Container(std::make_move_iterator(il.begin()), std::make_move_iterator(il.end()));
 }
