@@ -30,7 +30,7 @@ inline bool IsEventId(int val) {
 
 template <EventId Id> struct BodyTypeFor {};
 
-#define SET_BODY_TYPE(id, body_type) template <> struct BodyTypeFor<EventId::id> { using type = body_type; }
+#define SET_BODY_TYPE(id, body_type) template <> struct BodyTypeFor<EventId:: id> { using type = body_type; }
 
 SET_BODY_TYPE(IN_CLIENT_CAME,   body::ClientInfo);
 SET_BODY_TYPE(IN_CLIENT_GONE,   body::ClientInfo);

@@ -1,3 +1,5 @@
+#include "analyzer.hpp"
+
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -5,11 +7,10 @@
 #include <deque>
 #include <cassert>
 
-#include "analyzer.hpp"
 #include "utils/stream_operators.hpp"
 #include "errors.hpp"
 
-// TODO: handle empty lines
+// TODO: skip empty lines
 InputData LoadInputData(std::istream &is) {
     int line_number = 0;
     std::string line_content;

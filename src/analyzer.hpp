@@ -6,6 +6,7 @@
 
 #include "utils/timestamp.hpp"
 #include "event.hpp"
+#include "errors.hpp" // just to make errors part of analyzer
 
 struct InputData {
     int ntables;

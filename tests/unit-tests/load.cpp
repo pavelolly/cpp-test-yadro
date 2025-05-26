@@ -6,7 +6,6 @@
 #include "utils/movable_il.hpp"
 #include "utils/string.hpp"
 
-#include "event.hpp"
 #include "analyzer.hpp"
 
 TEST(Load, TimeStamp) {

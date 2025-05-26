@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <regex>
 
+#include "errors.hpp"
+
 void Dump(std::ostream &os, const body::ClientInfo &src) {
     os << src.name;
 }

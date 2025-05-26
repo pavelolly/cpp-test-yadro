@@ -1,6 +1,6 @@
-#include <cassert>
-
 #include "event.hpp"
+
+#include <cassert>
 
 #include "utils/string.hpp"
 #include "utils/stream_operators.hpp"
@@ -113,6 +113,6 @@ std::istream &Load(std::istream &is, Event &dest) {
         }
     }
 
-    // unreachable
+    assert(false && "Event::Load() unreachable");
     return is;
 }

@@ -21,7 +21,7 @@ The program was tested to build with GCC/Clang on Linux and MSVC on Windows.
 
 This project uses `GTest` for unit-testing
 
-By default building of unit tests is off. Enable it using the following command
+By default unit tests building is disabled. You can enable it using the following option
 
 ```bash
 cmake .. -DBUILD_UNIT_TESTS=ON
@@ -33,14 +33,9 @@ You might also want to help `cmake` find your `GTest`:
 cmake .. -DBUILD_UNIT_TESTS=ON -DCMAKE_PREFIX_PATH="path/to/gtest"
 ```
 
-You can simply run tests with `ctest` after building
+`ctest` runs unit tests
 
-This will install an executable and test files with input and output data for the program
-
-```bash
-cmake --install .
-```
-
+`cmake --install .` installs the executable and test files with input and output data for the program
 
 # Usage
 
@@ -51,7 +46,7 @@ cpp-test-yadro <file.txt>
 You can test program with files from test folder. For Example
 
 ```bash
-cpp-test-yadro data/001.dat | diff -b - data/001.ans
+cpp-test-yadro data/001.dat | diff -w - data/001.ans
 ```
 
-If output is clean then output of the program matches with the `.ans` file
+No output from the above command and exit code 0 mean that output of the program matches the corresponding `.ans` file
