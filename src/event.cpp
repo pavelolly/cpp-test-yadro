@@ -37,14 +37,13 @@ void Dump(std::ostream &os, const Event &src) {
 std::istream &Load(std::istream &is, Event &dest) {
     TimeStamp time;
     is >> time;
-
     if (!is) {
         return is;
     }
 
     std::string id;
     is >> id;
-    if (!IsDigit(id)) {
+    if (!is || !IsDigit(id)) {
         is.setstate(std::ios::failbit);
         return is;
     }
@@ -58,6 +57,8 @@ std::istream &Load(std::istream &is, Event &dest) {
     switch (static_cast<EventId>(event_id)) {
         using enum EventId;
 
+        // TODO: seems like you could make a macro for each case...
+        //       will this worth it though...
         case IN_CLIENT_CAME: {
             body::ClientInfo client_info;
             if (is >> client_info) {

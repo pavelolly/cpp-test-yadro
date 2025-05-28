@@ -74,8 +74,8 @@ std::istream &Load(std::istream &is, body::Error &dest) {
         return is;
     }
 
-    std::string_view message;
-    if ((message = error::GetError(str)).empty()) {
+    std::string_view message = error::GetError(str);
+    if (message.empty()) {
         is.setstate(std::ios::failbit);
         return is;
     }

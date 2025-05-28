@@ -20,7 +20,7 @@ InputData LoadInputData(std::istream &is) {
 
     auto ReadNextLine = [&] {
         std::getline(is, line_content);
-        if ((is.bad() || is.fail()) && !is.eof()) {
+        if (!is && !is.eof()) {
             throw std::runtime_error("LoadInputData: error occured while reading from std::istream");
         }
         ++line_number;
@@ -87,7 +87,7 @@ InputData LoadInputData(std::istream &is) {
             throw InputDataFormatError(line_number, std::move(line_content));
         }
 
-        // check tables
+        // check if table is a valid number
         if (event.GetId() == EventId::IN_CLIENT_START) {
             auto table_number = event.GetBody<body::ClientTable>().table_number;
             if (table_number < 1 || table_number > res.ntables)  {
@@ -119,8 +119,9 @@ OutputData ProcessInputData(const InputData &data) {
     std::map<std::string_view, int> clients_in_club;
     // busy_tables[0] is dummy for convinience (table_numbers in events are in range 1..ntables)
     std::vector<std::string_view> busy_tables(data.ntables + 1);
+    // need iterable queue
     std::deque<std::string_view> clients_queue;
-
+    // stores when each table was acquired last time
     std::vector<TimeStamp> acquire_timestamps(data.ntables + 1, TimeStamp::Invalid());
 
     auto ClientEnters = [&](TimeStamp time, std::string_view name) {
@@ -142,7 +143,8 @@ OutputData ProcessInputData(const InputData &data) {
         }
             
         TimeStamp time_used = time - acquire_timestamps[table];
-        int hours_used = time_used.GetMinutes() == 0 ? time_used.GetHours() : time_used.GetHours() + 1;
+        // hours that client spent with table is rounded up
+        int hours_used = time_used.GetHours() + (time_used.GetMinutes() != 0);
 
         res.table_infos[table].earnings  += hours_used * data.cost_per_hour;
         res.table_infos[table].time_used += time_used;
@@ -216,7 +218,7 @@ OutputData ProcessInputData(const InputData &data) {
             return;
         }
 
-        if (clients_queue.size() > (std::size_t)data.ntables) {
+        if (clients_queue.size() > (std::size_t) data.ntables) {
             res.AddEvent<EventId::OUT_CLIENT_GONE>(time, { std::string(name) });
             ClientLeaves(time, name);
             return;

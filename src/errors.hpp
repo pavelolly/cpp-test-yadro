@@ -10,6 +10,8 @@ inline constexpr std::string_view PLACE_IS_BUSY      = "PlaceIsBusy";
 inline constexpr std::string_view CLIENT_UNKNOWN     = "ClientUnknown";
 inline constexpr std::string_view CAN_WAIT_NO_LONGER = "ICanWaitNoLonger!";
 
+// returns one of the above string_views if str equals any of them
+// otherwise returns empty string_view
 inline std::string_view GetError(std::string_view str) {
     if (str == YOU_SHALL_NOT_PASS) {
         return YOU_SHALL_NOT_PASS;
@@ -26,7 +28,7 @@ inline std::string_view GetError(std::string_view str) {
     if (str == CAN_WAIT_NO_LONGER) {
         return CAN_WAIT_NO_LONGER;
     }
-    return "";
+    return std::string_view {};
 }
 
 } // namespace error
