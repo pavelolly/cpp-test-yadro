@@ -4,7 +4,7 @@ This project exists as part of a test assignment for an internship.
 
 The program reads files in a specific format and outputs some processed information.
 
-To learn more about the formats visit `tests` folder with `*.dat` and `*.ans` files
+To learn more about the formats visit `tests/data` folder with `*.dat` and `*.ans` files
 
 # Build
 
