@@ -89,7 +89,9 @@ InputData LoadInputData(std::istream &is) {
 
         // check if table is a valid number
         if (event.GetId() == EventId::IN_CLIENT_START) {
-            auto table_number = event.GetBody<body::ClientTable>().table_number;
+            using BodyType = BodyTypeForId<EventId::IN_CLIENT_START>;
+            
+            auto table_number = event.GetBody<BodyType>().table_number;
             if (table_number < 1 || table_number > res.ntables)  {
                 throw InputDataFormatError(line_number, std::move(line_content));
             }

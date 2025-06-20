@@ -60,60 +60,58 @@ std::istream &Load(std::istream &is, Event &dest) {
         // TODO: seems like you could make a macro for each case...
         //       will this worth it though...
         case IN_CLIENT_CAME: {
-            body::ClientInfo client_info;
-            if (is >> client_info) {
-                dest = Event::Create<IN_CLIENT_CAME>(time, client_info);
+            BodyTypeForId<IN_CLIENT_CAME> event_body;
+            if (is >> event_body) {
+                dest = Event::Create<IN_CLIENT_CAME>(time, event_body);
             }
-            return is;
+            break;
         }
         case IN_CLIENT_WAIT: {
-            body::ClientInfo client_info;
-            if (is >> client_info) {
-                dest = Event::Create<IN_CLIENT_WAIT>(time, client_info);
+            BodyTypeForId<IN_CLIENT_WAIT> event_body;
+            if (is >> event_body) {
+                dest = Event::Create<IN_CLIENT_WAIT>(time, event_body);
             }
-            return is;
+            break;
         }
         case IN_CLIENT_START: {
-            body::ClientTable client_table;
-            if (is >> client_table) {
-                dest = Event::Create<IN_CLIENT_START>(time, client_table);
+            BodyTypeForId<IN_CLIENT_START> event_body;
+            if (is >> event_body) {
+                dest = Event::Create<IN_CLIENT_START>(time, event_body);
             }
-            return is;
+            break;
         }
         case IN_CLIENT_GONE: {
-            body::ClientInfo client_info;
-            if (is >> client_info) {
-                dest = Event::Create<IN_CLIENT_GONE>(time, client_info);
+            BodyTypeForId<IN_CLIENT_GONE> event_body;
+            if (is >> event_body) {
+                dest = Event::Create<IN_CLIENT_GONE>(time, event_body);
             }
-            return is;
+            break;
         }
         case OUT_CLIENT_GONE: {
-            body::ClientInfo client_info;
-            if (is >> client_info) {
-                dest = Event::Create<OUT_CLIENT_GONE>(time, client_info);
+            BodyTypeForId<OUT_CLIENT_GONE> event_body;
+            if (is >> event_body) {
+                dest = Event::Create<OUT_CLIENT_GONE>(time, event_body);
             }
-            return is;
+            break;
         }
         case OUT_CLIENT_START: {
-            body::ClientTable client_table;
-            if (is >> client_table) {
-                dest = Event::Create<OUT_CLIENT_START>(time, client_table);
+            BodyTypeForId<OUT_CLIENT_START> event_body;
+            if (is >> event_body) {
+                dest = Event::Create<OUT_CLIENT_START>(time, event_body);
             }
-            return is;
+            break;
         }
         case OUT_ERROR: {
-            body::Error error;
-            if (is >> error) {
-                dest = Event::Create<OUT_ERROR>(time, error);
+            BodyTypeForId<OUT_ERROR> event_body;
+            if (is >> event_body) {
+                dest = Event::Create<OUT_ERROR>(time, event_body);
             }
-            return is;
+            break;
         }
         case UNKNOWN: {
             dest = Event();
-            return is;
         }
     }
 
-    assert(false && "Event::Load() unreachable");
     return is;
 }
